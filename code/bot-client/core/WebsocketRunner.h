@@ -7,7 +7,7 @@
 
 
 #include "resources.h"
-#include "MessagesManager.h"
+#include "CommandsManager.h"
 
 class WebsocketRunner {
 
@@ -19,7 +19,7 @@ private:
     ConnectionMetainfo metainfo;
     WSRunnerProperties properties;
 
-    std::shared_ptr<MessagesManager> commandsManager;
+    std::weak_ptr<CommandsManager> commandsManager;
 
     /// returns false in case if error caught, else -> true;
     [[nodiscard]] bool handleError(websocketpp::lib::error_code error_code);
@@ -31,7 +31,7 @@ private:
 
 public:
 
-    WebsocketRunner(const WSRunnerProperties& properties, std::shared_ptr<MessagesManager> cm);
+    WebsocketRunner(const WSRunnerProperties& properties, std::weak_ptr<CommandsManager> cm);
     ~WebsocketRunner();
 
     bool setup_connection(const std::string &uri);

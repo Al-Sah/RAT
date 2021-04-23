@@ -9,17 +9,19 @@
 #include <string>
 #include <list>
 #include <map>
+#include <memory>
 
 class ModulesManager {
 
-private:
-    void executeTask(std::string id);
 
-    // map < request_id, pair <module, response >
-    std::map<std::string, std::pair<std::string, std::string>> tasks;
 public:
+    // temp
+    void executeTask(std::string module, std::string task_id, std::shared_ptr<std::string> payload);
+    //void on_module_message();
 
-    void register_task();
+
+
+
 };
 
 

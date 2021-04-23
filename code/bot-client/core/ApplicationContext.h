@@ -12,8 +12,10 @@ class ApplicationContext {
 
 private:
     WSRunnerProperties wsRunnerProperties;
+    CommandsManagerProperties commandsManagerProperties;
 public:
     [[nodiscard]] const WSRunnerProperties &getWsRunnerProperties() const;
+    [[nodiscard]] const CommandsManagerProperties &getCommandsManagerProperties() const;
 
 public:
     ApplicationContext();

@@ -7,7 +7,7 @@
 
 
 #include "WebsocketRunner.h"
-#include "MessagesManager.h"
+#include "CommandsManager.h"
 #include "ApplicationContext.h"
 #include "ModulesManager.h"
 
@@ -16,7 +16,7 @@ private:
     std::shared_ptr<ApplicationContext> applicationContext;
 
 
-    std::shared_ptr<MessagesManager> messagesManager;
+    std::shared_ptr<CommandsManager> commandsManager;
     std::shared_ptr<ModulesManager> modulesManager;
 
     std::unique_ptr<WebsocketRunner> websocketRunner;

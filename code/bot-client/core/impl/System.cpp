@@ -10,12 +10,12 @@ System::System(){
     //std::shared_ptr<ApplicationContext>(new ApplicationContext());
     this->applicationContext = std::make_shared<ApplicationContext>();
     this->modulesManager  = std::make_shared<ModulesManager>();
-    this->messagesManager = std::make_shared<MessagesManager>();
+    this->commandsManager = std::make_shared<CommandsManager>(applicationContext->getCommandsManagerProperties(), modulesManager);
 
-    this->websocketRunner = std::make_unique<WebsocketRunner>(applicationContext->getWsRunnerProperties(), messagesManager);
+    this->websocketRunner = std::make_unique<WebsocketRunner>(applicationContext->getWsRunnerProperties(), commandsManager);
 
 
-    //MessagesManager *messagesManager;
+    //CommandsManager *commandsManager;
     //ModulesManager *modulesManager;
     //this->websocketRunner = new WebsocketRunner();
 }

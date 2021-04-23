@@ -4,7 +4,7 @@
 
 #include "../WebsocketRunner.h"
 
-WebsocketRunner::WebsocketRunner(const WSRunnerProperties& properties, std::shared_ptr<MessagesManager> commandsManager) {
+WebsocketRunner::WebsocketRunner(const WSRunnerProperties& properties, std::weak_ptr<CommandsManager> commandsManager) {
     client.clear_access_channels(properties.accessLoggingLevel);
     client.clear_error_channels(properties.errorsLoggingLevel);
 
@@ -35,7 +35,7 @@ bool WebsocketRunner::setup_connection(const std::string &uri) {
      /* Each handle can be set using bind: websocketpp::lib::bind(&WebsocketRunner::method, this, placeholders...)
      Previously was used: on_something(std::forward<decltype(connection_handle)>(connection_handle));
      Lambda:   std::function<void(std::weak_ptr<void>)>  where std::weak_ptr<void> equals connection_hdl */
-
+    connection->set_max_message_size(524288);
 
     connection->set_close_handler([this](auto && connection_handle){
         this->on_close(connection_handle);
@@ -106,6 +106,7 @@ void WebsocketRunner::on_open(const websocketpp::connection_hdl& hdl) {
     this->metainfo.status = "Opened";
 
     WSClient::connection_ptr connection_ptr = client.get_con_from_hdl(hdl);
+    std::cout << "max_message_size " << connection_ptr->get_max_message_size()<<std::endl;
     std::cout << "Opened connection: \nRequest:\n raw:\n" << connection_ptr->get_request().raw();
     std::cout << "Opened connection: \nResponse:\n raw:\n" << connection_ptr->get_response().raw() << "\nget_response_msg  " << connection_ptr->get_response_msg();
 }
@@ -117,9 +118,12 @@ void WebsocketRunner::on_message(const websocketpp::connection_hdl& hdl, const M
             << "\nMessage header: " << msg->get_header()
             << "\nMessage opcode: " << msg->get_opcode() << std::endl;
 
+    WSClient::connection_ptr connection_ptr = client.get_con_from_hdl(hdl);
+
     msg->get_opcode();
 
-    commandsManager->handleMessage(msg->get_payload());
+    commandsManager.lock()->handleMessage(msg->get_payload());
+    //commandsManager->handleMessage(msg->get_payload());
 }
 
 void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
@@ -137,6 +141,6 @@ bool WebsocketRunner::send_message(const std::string &message) {
 
     ErrorCode ec;
     client.send(metainfo.hdl,message, websocketpp::frame::opcode::value::TEXT, ec);
-    client.send(metainfo.hdl,message, websocketpp::frame::opcode::value::CLOSE, ec);
+    //client.send(metainfo.hdl,message, websocketpp::frame::opcode::value::CLOSE, ec);
     return !handleError(ec);
 }

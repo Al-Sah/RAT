@@ -19,6 +19,7 @@ void loadTest(){
         if (!is_regular_file(i)  ||   i.extension() != ".so"){
             continue;
         }
+
 #ifdef WIN32
 #else
         void *handle = dlopen (i.string().c_str(), RTLD_LAZY);
@@ -34,10 +35,6 @@ void loadTest(){
 
 
 int main() {
-
-
-    loadTest();
-    return 0;
 
     System sys;
     sys.run();

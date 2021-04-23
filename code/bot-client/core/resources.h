@@ -52,6 +52,40 @@ struct WSRunnerProperties{
 };
 
 
+namespace command {
+
+    struct delimiters{
+        char section = '#';
+        char id_val = ':';
+    };
+
+    struct full_args_id {
+        std::string response_type = "RESPONSE_TYPE";
+        std::string package_type = "PACKAGE_TYPE";
+        std::string recipient_id = "RECIPIENT_ID";
+        std::string request_id = "REQUEST_ID";
+        std::string module = "MODULE";
+    };
+
+    struct short_args_id {
+        std::string response_type = "RPT";
+        std::string package_type = "PT";
+        std::string recipient_id = "ID";
+        std::string request_id = "REQ";
+        std::string module = "M";
+    };
+
+}
+
+
+struct CommandsManagerProperties{
+    bool enable_args_id = true;
+    command::delimiters delimiters;
+    command::full_args_id full_args_id;
+    command::short_args_id short_args_id;
+
+};
+
 
 
 #endif //BASIC_MODULE_RESOURCES_H
