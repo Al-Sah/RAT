@@ -15,3 +15,7 @@ const WSRunnerProperties &ApplicationContext::getWsRunnerProperties() const {
 const CommandsManagerProperties &ApplicationContext::getCommandsManagerProperties() const {
     return commandsManagerProperties;
 }
+
+const ModulesManagerProperties &ApplicationContext::getModulesManagerProperties() const {
+    return modulesManagerProperties;
+}

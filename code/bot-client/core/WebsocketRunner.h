@@ -7,7 +7,9 @@
 
 
 #include "resources.h"
-#include "CommandsManager.h"
+//#include "CommandsManager.h"
+
+class CommandsManager;
 
 class WebsocketRunner {
 
@@ -20,6 +22,10 @@ private:
     WSRunnerProperties properties;
 
     std::weak_ptr<CommandsManager> commandsManager;
+public:
+    void setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager);
+
+private:
 
     /// returns false in case if error caught, else -> true;
     [[nodiscard]] bool handleError(websocketpp::lib::error_code error_code);
@@ -30,8 +36,8 @@ private:
     void on_message(const websocketpp::connection_hdl& hdl, const MessagePtr& msg);
 
 public:
+    WebsocketRunner(WSRunnerProperties properties);
 
-    WebsocketRunner(const WSRunnerProperties& properties, std::weak_ptr<CommandsManager> cm);
     ~WebsocketRunner();
 
     bool setup_connection(const std::string &uri);

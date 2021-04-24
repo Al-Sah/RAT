@@ -65,14 +65,14 @@ public class Utils {
     }
 
     public static String generateBotEnvelope(String packageType, String module, String request, String RequiredResponse){
-        return lengthCheck(":PT:"+packageType+ "#M:"+ module + "#REQ:" + request +"#A:"+RequiredResponse);
+        return lengthCheck(":PT:"+packageType+ "#M:"+ module + "#REQ:" + request +"#RPT:"+RequiredResponse);
     }
     public static String generateBotEnvelope(String packageType, String module, String request){
         return lengthCheck(":PT:"+packageType+ "#M:"+ module + "#REQ:" + request);
     }
 
     public static String generateUserEnvelope(String packageType, String module, String userId, String RequiredResponse){
-        return lengthCheck(":PT:"+packageType+ "#M:"+ module + "#UID:" + userId +"#A:"+RequiredResponse);
+        return lengthCheck(":PT:"+packageType+ "#M:"+ module + "#UID:" + userId +"#RPT:"+RequiredResponse);
     }
     public static String generateUserEnvelope(String packageType, String module, String userId){
         return lengthCheck(":PT:"+packageType+ "#M:"+ module + "#UID:" + userId);

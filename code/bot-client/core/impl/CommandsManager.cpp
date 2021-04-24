@@ -2,29 +2,35 @@
 // Created by al_sah on 09.03.21.
 //
 
-#include <search.h>
 #include "../CommandsManager.h"
 
-void CommandsManager::handleMessage(const std::string& src) {
+#include <utility>
+
+//#include "../WebsocketRunner.h"
+
+
+std::string bool2str(bool b){
+    return b ? "1" : "0";
+}
+
+std::string CommandsManager::generate_section(std::string key, std::string value, bool add_sd) const{
+    return add_sd
+           ? properties.delimiters.section + key + properties.delimiters.id_val + value
+           : key + properties.delimiters.id_val + value;
+}
+
+void CommandsManager::length_check(std::string &raw_envelope) {
+    size_t size = raw_envelope.length() <= 97 ? raw_envelope.length()+2 : raw_envelope.length()+3;
+    raw_envelope = std::to_string(size) + raw_envelope;
+}
+
+void CommandsManager::handleRequestMessage(const std::string& src) {
 
     ParsedTextMessage* message = parseMessage(src);
     std::string pack_type = message->getPackageType();
     std::string request_id = message->getRequestId();
+
     // extracting payload and registering the task
-/*    if(pack_type == "first" || pack_type == "single"){
-        inboxTextMessagesBuffer.emplace(request_id, std::make_shared<std::string>(message->getPayload()));
-        tasks.push_back(*(new Task(message)));
-    } else if (pack_type == "con" || pack_type == "last"){
-        inboxTextMessagesBuffer.find(request_id)->second->append( message->getPayload());
-    }
-
-    if(pack_type == "single" || pack_type == "last"){
-        modulesManager.lock()
-        ->executeTask(message->getModule(), request_id, (inboxTextMessagesBuffer.find(request_id))->second);
-        // TO DO execute command and remove message from buffer
-        std::cout << inboxTextMessagesBuffer.find(message->getRequestId())->second;
-    }*/
-
     if(pack_type == "first"){
         inboxTextMessagesBuffer.emplace(request_id, std::make_shared<std::string>(message->getPayload()));
         if(message->getResponseType() != "none"){
@@ -50,7 +56,6 @@ void CommandsManager::handleMessage(const std::string& src) {
                         request_id,
                         std::make_shared<std::string>(message->getPayload()));
     }
-
 
 }
 
@@ -93,30 +98,13 @@ ParsedTextMessage* CommandsManager::parseMessage(const std::string &src) {
     //return new ParsedTextMessage(envelopeParams, src.substr(envelope_size));
 }
 
-std::string CommandsManager::form_task(std::map<std::string, std::string> envelopeParams) {
-
-    return std::string();
-}
-
 bool CommandsManager::validate_parsed_message(ParsedTextMessage message) {
-//    message.params()
-/*
-
-    std::string request_id = message.params().find("REQ") != parsed->params().end() ? parsed->params().find("REQ")->second : "";
-    std::string package_type = parsed->params().find("PT") != parsed->params().end() ? parsed->params().find("PT")->second : "";
-    std::string module = parsed->params().find("M") != parsed->params().end() ? parsed->params().find("M")->second : "";
-*/
 
 
     return false;
 }
 
-CommandsManager::CommandsManager(const CommandsManagerProperties &properties, std::weak_ptr<ModulesManager> modulesManager) {
-    this->properties = properties;
-    this->modulesManager = modulesManager;
-}
-
-void CommandsManager::keyCheck(ParsedTextMessage *message, std::string &key, std::string &src) {
+void CommandsManager::keyCheck(ParsedTextMessage *message, std::string &key, std::string &src) const {
     if(key == properties.short_args_id.module || key == properties.full_args_id.module){
         message->setModule(src);
     } else if(key == properties.short_args_id.package_type || key == properties.full_args_id.package_type){
@@ -127,3 +115,29 @@ void CommandsManager::keyCheck(ParsedTextMessage *message, std::string &key, std
         message->setResponseType(src);
     }
 }
+
+void CommandsManager::handleResponseMessage(std::string &task_id, std::shared_ptr<std::string> payload, bool isLast) {
+    // TODO get max transferring message size, check it parse message by parts
+
+    std::string result = properties.delimiters.id_val +
+            generate_section(properties.short_args_id.package_type, "single") +
+            generate_section(properties.short_args_id.request_id, task_id, true) +
+            generate_section(properties.short_args_id.is_last, bool2str(isLast), true);
+
+    this->length_check(result);
+    result.append(payload.operator*());
+
+    websocketRunner.lock()->send_message(result);
+
+}
+
+void CommandsManager::setModulesManager(const std::weak_ptr<ModulesManager> &modulesManager) {
+    CommandsManager::modulesManager = modulesManager;
+}
+
+void CommandsManager::setWebsocketRunner(const std::weak_ptr<WebsocketRunner> &websocketRunner) {
+    CommandsManager::websocketRunner = websocketRunner;
+}
+
+CommandsManager::CommandsManager(CommandsManagerProperties properties) : properties(std::move(properties)) {}
+

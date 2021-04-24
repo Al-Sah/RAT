@@ -7,17 +7,19 @@
 #include <memory>
 
 System::System(){
-    //std::shared_ptr<ApplicationContext>(new ApplicationContext());
+
     this->applicationContext = std::make_shared<ApplicationContext>();
-    this->modulesManager  = std::make_shared<ModulesManager>();
-    this->commandsManager = std::make_shared<CommandsManager>(applicationContext->getCommandsManagerProperties(), modulesManager);
+    this->modulesManager  = std::make_shared<ModulesManager> (applicationContext->getModulesManagerProperties());
+    this->commandsManager = std::make_shared<CommandsManager>(applicationContext->getCommandsManagerProperties());
+    this->websocketRunner = std::make_shared<WebsocketRunner>(applicationContext->getWsRunnerProperties());
 
-    this->websocketRunner = std::make_unique<WebsocketRunner>(applicationContext->getWsRunnerProperties(), commandsManager);
+    commandsManager->setModulesManager(modulesManager);
+    commandsManager->setWebsocketRunner(websocketRunner);
+
+    websocketRunner->setCommandsManager(commandsManager);
+    modulesManager ->setCommandsManager(commandsManager);
 
 
-    //CommandsManager *commandsManager;
-    //ModulesManager *modulesManager;
-    //this->websocketRunner = new WebsocketRunner();
 }
 
 void System::run() {

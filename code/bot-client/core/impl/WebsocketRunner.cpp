@@ -4,20 +4,8 @@
 
 #include "../WebsocketRunner.h"
 
-WebsocketRunner::WebsocketRunner(const WSRunnerProperties& properties, std::weak_ptr<CommandsManager> commandsManager) {
-    client.clear_access_channels(properties.accessLoggingLevel);
-    client.clear_error_channels(properties.errorsLoggingLevel);
-
-    client.init_asio();
-    client.start_perpetual();
-
-    this->properties = properties;
-    metainfo = {};
-    metainfo.myID = properties.myID;
-    this->commandsManager = commandsManager;
-
-    thread.reset(new websocketpp::lib::thread(&WSClient::run, &client));
-}
+#include <utility>
+#include "../CommandsManager.h"
 
 WebsocketRunner::~WebsocketRunner() {
 
@@ -122,8 +110,8 @@ void WebsocketRunner::on_message(const websocketpp::connection_hdl& hdl, const M
 
     msg->get_opcode();
 
-    commandsManager.lock()->handleMessage(msg->get_payload());
-    //commandsManager->handleMessage(msg->get_payload());
+    commandsManager.lock()->handleRequestMessage(msg->get_payload());
+    //commandsManager->handleRequestMessage(msg->get_payload());
 }
 
 void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
@@ -140,7 +128,24 @@ void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
 bool WebsocketRunner::send_message(const std::string &message) {
 
     ErrorCode ec;
-    client.send(metainfo.hdl,message, websocketpp::frame::opcode::value::TEXT, ec);
+    client.send(metainfo.hdl, message, websocketpp::frame::opcode::value::TEXT, ec);
     //client.send(metainfo.hdl,message, websocketpp::frame::opcode::value::CLOSE, ec);
     return !handleError(ec);
+}
+
+WebsocketRunner::WebsocketRunner(WSRunnerProperties properties) : properties(std::move(properties)) {
+    client.clear_access_channels(properties.accessLoggingLevel);
+    client.clear_error_channels(properties.errorsLoggingLevel);
+
+    client.init_asio();
+    client.start_perpetual();
+
+    metainfo = {};
+    metainfo.myID = properties.myID;
+
+    thread.reset(new websocketpp::lib::thread(&WSClient::run, &client));
+}
+
+void WebsocketRunner::setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager) {
+    this->commandsManager = commandsManager;
 }

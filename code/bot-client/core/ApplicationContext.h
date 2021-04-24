@@ -13,11 +13,13 @@ class ApplicationContext {
 private:
     WSRunnerProperties wsRunnerProperties;
     CommandsManagerProperties commandsManagerProperties;
+    ModulesManagerProperties modulesManagerProperties;
+
 public:
+    [[nodiscard]] const ModulesManagerProperties &getModulesManagerProperties() const;
     [[nodiscard]] const WSRunnerProperties &getWsRunnerProperties() const;
     [[nodiscard]] const CommandsManagerProperties &getCommandsManagerProperties() const;
 
-public:
     ApplicationContext();
 };
 

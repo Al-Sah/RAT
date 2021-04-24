@@ -10,28 +10,39 @@
 #include "ModulesManager.h"
 #include "models/ParsedTextMessage.h"
 #include "models/Task.h"
+#include "WebsocketRunner.h"
 
-class CommandsManager {
+//class WebsocketRunner;
+
+class CommandsManager { // TODO set command size limit (Implement temp storage)
 
 private:
 
     CommandsManagerProperties properties;
     std::weak_ptr<ModulesManager> modulesManager;
+    std::weak_ptr<WebsocketRunner> websocketRunner;
 
     /// request_id, payload (temp)
     std::map<std::string, std::shared_ptr<std::string>> inboxTextMessagesBuffer;
+    /// request_id, payload_part      Ready to send payload
+//    std::map<std::string, std::map<int, std::shared_ptr<std::string>>> inboxTextMessagesBuffer;
     std::list<Task> tasks;
 
-    void keyCheck(ParsedTextMessage *message, std::string &key, std::string &src);
+    void keyCheck(ParsedTextMessage *message, std::string &key, std::string &src) const;
+    void length_check(std::string &raw_envelope); // TODO move to utils
+    std::string generate_section(std::string key, std::string value, bool add_sd = false) const;
 
 public:
+    CommandsManager(CommandsManagerProperties properties);
 
-    CommandsManager(const CommandsManagerProperties &properties, std::weak_ptr<ModulesManager> modulesManager);
 
     ParsedTextMessage* parseMessage(const std::string& src);
-    static std::string form_task(std::map<std::string, std::string> envelopeParams);
-    static bool validate_parsed_message(ParsedTextMessage message);
-    void handleMessage(const std::string& message);
+    static bool validate_parsed_message(ParsedTextMessage message); // TODO move to utils
+    void handleRequestMessage(const std::string& message);
+    void handleResponseMessage(std::string &task_id, std::shared_ptr<std::string> payload, bool isLast);
+
+    void setModulesManager(const std::weak_ptr<ModulesManager> &modulesManager);
+    void setWebsocketRunner(const std::weak_ptr<WebsocketRunner> &websocketRunner);
 
 };
 

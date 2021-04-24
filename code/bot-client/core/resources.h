@@ -47,7 +47,7 @@ struct WSRunnerProperties{
     uint32_t accessLoggingLevel = websocketpp::log::alevel::all;
     uint32_t errorsLoggingLevel = websocketpp::log::elevel::all;
 
-    uint32_t reconnectTime = 5;
+    //uint32_t reconnectTime = 5;
 
 };
 
@@ -65,6 +65,7 @@ namespace command {
         std::string recipient_id = "RECIPIENT_ID";
         std::string request_id = "REQUEST_ID";
         std::string module = "MODULE";
+        std::string is_last = "LAST";
     };
 
     struct short_args_id {
@@ -73,6 +74,7 @@ namespace command {
         std::string recipient_id = "ID";
         std::string request_id = "REQ";
         std::string module = "M";
+        std::string is_last = "L";
     };
 
 }
@@ -83,6 +85,10 @@ struct CommandsManagerProperties{
     command::delimiters delimiters;
     command::full_args_id full_args_id;
     command::short_args_id short_args_id;
+
+};
+
+struct ModulesManagerProperties{
 
 };
 

@@ -5,6 +5,7 @@ import devs.alex.sah.rat.c2server.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,12 @@ public class BotWebSocketSessionService implements WebSocketSessionService {
 
     @Override
     public void addSession(WebSocketSession session) {
+        //ConcurrentWebSocketSessionDecorator z = new ConcurrentWebSocketSessionDecorator(session, 1000, 524288);
+        session.setTextMessageSizeLimit(524288);
+        session.setBinaryMessageSizeLimit(524288);
         activeBotsSessions.put((String)session.getAttributes().get("botId"), session);
+        log.info("Max text message size {}", session.getTextMessageSizeLimit());
+        log.info("Max  bin message size {}", session.getBinaryMessageSizeLimit());
     }
 
     @Override
