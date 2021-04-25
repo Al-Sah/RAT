@@ -1,0 +1,15 @@
+
+message:
+
+  delimiters:
+    section: "#"
+    value: ":"
+
+  keys:
+    full-message-size: "FS"
+    package-type: "PT"
+    recipient-type: "RT"
+    recipient-id: "ID"
+    module: "M"
+    request-id: "REQ"
+    response-type: "RPT"
