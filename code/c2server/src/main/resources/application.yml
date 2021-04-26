@@ -13,3 +13,13 @@ message:
     module: "M"
     request-id: "REQ"
     response-type: "RPT"
+
+  packages:
+    first-part: "first"
+    continuation: "con"
+    last-part: "last"
+    single-message: "single"
+
+  recipients:
+    control-side: "control"
+    bot-side: "bot"

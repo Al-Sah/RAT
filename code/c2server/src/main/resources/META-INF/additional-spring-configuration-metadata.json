@@ -34,5 +34,58 @@
       "name": "message.keys.full-message-size",
       "type": "java.lang.String",
       "description": "Description for message.keys.full-message-size."
+    },
+
+
+
+
+    {
+      "name": "message.delimiters.value",
+      "type": "java.lang.String",
+      "description": "Description for message.delimiters.value."
+    },
+    {
+      "name": "message.delimiters.section",
+      "type": "java.lang.String",
+      "description": "Description for message.delimiters.section."
+    },
+
+
+
+
+    {
+      "name": "message.recipients.control-side",
+      "type": "java.lang.String",
+      "description": "Description for message.recipients.control-side."
+    },
+    {
+      "name": "message.recipients.bot-side",
+      "type": "java.lang.String",
+      "description": "Description for message.recipients.bot-side."
+    },
+
+
+
+
+    {
+      "name": "message.packages.first-part",
+      "type": "java.lang.String",
+      "description": "Description for message.packages.first-part."
+    },
+    {
+      "name": "message.packages.continuation",
+      "type": "java.lang.String",
+      "description": "Description for message.packages.continuation."
+    },
+    {
+      "name": "message.packages.last-part",
+      "type": "java.lang.String",
+      "description": "Description for message.packages.last-part."
+    },
+    {
+      "name": "message.packages.single-message",
+      "type": "java.lang.String",
+      "description": "Description for message.packages.single-message."
     }
-  ] }
+  ]
+}
