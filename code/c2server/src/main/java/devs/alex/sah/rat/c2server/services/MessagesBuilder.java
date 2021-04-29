@@ -10,6 +10,7 @@ public interface MessagesBuilder {
 
     String generateBotEnvelope(String packageType, String module, String request, String RequiredResponse);
     String generateBotEnvelope(String packageType, String module, String request);
+    void validateBotEnvelope(Message<?> message, StringBuffer errors);
 
     String generateUserEnvelope(String packageType, String module, String userId, String RequiredResponse);
     String generateUserEnvelope(String packageType, String module, String userId);
@@ -17,4 +18,5 @@ public interface MessagesBuilder {
     Message<String> parseMessage(TextMessage message, StringBuffer errors);
     Message<ByteBuffer> parseMessage(BinaryMessage message, StringBuffer errors);
 
+    String generateErrorEnvelope(String targetType);
 }

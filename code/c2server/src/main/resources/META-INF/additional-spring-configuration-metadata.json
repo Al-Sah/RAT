@@ -6,19 +6,19 @@
       "description": "Description for message.keys.package-type."
     },
     {
-      "name": "message.keys.recipient-type",
+      "name": "message.keys.target-type",
       "type": "java.lang.String",
-      "description": "Description for message.keys.recipient-type."
+      "description": "Description for message.keys.target-type."
     },
     {
-      "name": "message.keys.recipient-id",
+      "name": "message.keys.target-id",
       "type": "java.lang.String",
-      "description": "Description for message.keys.recipient-id."
+      "description": "Description for message.keys.target-id."
     },
     {
-      "name": "message.keys.module",
+      "name": "message.keys.target-module",
       "type": "java.lang.String",
-      "description": "Description for message.keys.module."
+      "description": "Description for message.keys.target-module."
     },
     {
       "name": "message.keys.request-id",
@@ -35,10 +35,6 @@
       "type": "java.lang.String",
       "description": "Description for message.keys.full-message-size."
     },
-
-
-
-
     {
       "name": "message.delimiters.value",
       "type": "java.lang.String",
@@ -49,24 +45,21 @@
       "type": "java.lang.String",
       "description": "Description for message.delimiters.section."
     },
-
-
-
-
     {
-      "name": "message.recipients.control-side",
+      "name": "message.targets.control-side",
       "type": "java.lang.String",
-      "description": "Description for message.recipients.control-side."
+      "description": "Description for message.targets.control-side."
     },
     {
-      "name": "message.recipients.bot-side",
+      "name": "message.targets.bot-side",
       "type": "java.lang.String",
-      "description": "Description for message.recipients.bot-side."
+      "description": "Description for message.targets.bot-side."
     },
-
-
-
-
+    {
+      "name": "message.targets.server-side",
+      "type": "java.lang.String",
+      "description": "Description for message.targets.server-side."
+    },
     {
       "name": "message.packages.first-part",
       "type": "java.lang.String",

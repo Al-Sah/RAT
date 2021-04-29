@@ -2,24 +2,25 @@
 message:
 
   delimiters:
-    section: "#"
-    value: ":"
+    section:  "#"
+    value:    ":"
 
   keys:
     full-message-size: "FS"
-    package-type: "PT"
-    recipient-type: "RT"
-    recipient-id: "ID"
-    module: "M"
-    request-id: "REQ"
-    response-type: "RPT"
+    package-type:     "PT"
+    target-type:      "TT"
+    target-id:        "TID"
+    target-module:    "TM"
+    request-id:       "RID"
+    response-type:    "RT"
 
   packages:
-    first-part: "first"
-    continuation: "con"
-    last-part: "last"
+    first-part:     "first"
+    continuation:   "con"
+    last-part:      "last"
     single-message: "single"
 
-  recipients:
+  targets:
     control-side: "control"
-    bot-side: "bot"
+    bot-side:     "bot"
+    server-side:  "server"

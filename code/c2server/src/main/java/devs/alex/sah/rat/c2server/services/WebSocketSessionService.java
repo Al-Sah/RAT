@@ -11,5 +11,5 @@ public interface WebSocketSessionService {
     void removeSession(WebSocketSession session);
 
     Map<String, WebSocketSession> getSessions(HashMap<String, Object> filters);
-    WebSocketSession getSession(String key);
+    WebSocketSession getSession(String key) /*throws SessionNotFound*/; // FIXME
 }

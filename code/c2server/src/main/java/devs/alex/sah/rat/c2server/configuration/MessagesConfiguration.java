@@ -10,24 +10,24 @@ public class MessagesConfiguration{ // FIXME Create annotation to validate custo
     public final Keys keys;
     public final Delimiters delimiters;
     public final Packages packages;
-    public final Recipients recipients;
+    public final Targets targets;
 
     public MessagesConfiguration(Keys keys,
                                  Delimiters delimiters,
                                  Packages packages,
-                                 Recipients recipients) {
+                                 Targets targets) {
         this.keys = keys;
         this.delimiters = delimiters;
         this.packages = packages;
-        this.recipients = recipients;
+        this.targets = targets;
     }
 
     public static class Keys {
 
         public final String packageType;
-        public final String recipientType;
-        public final String recipientID;
-        public final String module;
+        public final String targetType;
+        public final String targetID;
+        public final String targetModule;
         public final String requestID;
         public final String responseType;
         public final String fullMessageSize;
@@ -35,17 +35,17 @@ public class MessagesConfiguration{ // FIXME Create annotation to validate custo
 
         // TODO custom Keys validation
         public Keys(@DefaultValue("PT")  String packageType,
-                    @DefaultValue("RT")  String recipientType,
-                    @DefaultValue("RID") String recipientID,
-                    @DefaultValue("M")   String module,
-                    @DefaultValue("REQ") String requestID,
-                    @DefaultValue("RPT") String responseType,
+                    @DefaultValue("TT")  String targetType,
+                    @DefaultValue("TID") String targetID,
+                    @DefaultValue("TM")   String targetModule,
+                    @DefaultValue("RID") String requestID,
+                    @DefaultValue("RT") String responseType,
                     @DefaultValue("FS")  String fullMessageSize,
                     @DefaultValue("L")   String isLast) {
             this.packageType = packageType;
-            this.recipientType = recipientType;
-            this.recipientID = recipientID;
-            this.module = module;
+            this.targetType = targetType;
+            this.targetID = targetID;
+            this.targetModule = targetModule;
             this.requestID = requestID;
             this.responseType = responseType;
             this.fullMessageSize = fullMessageSize;
@@ -83,13 +83,16 @@ public class MessagesConfiguration{ // FIXME Create annotation to validate custo
     }
 
     // TODO custom Keys validation
-    public static class Recipients {
+    public static class Targets {
         public final String controlSide;
         public final String botSide;
-        public Recipients(@DefaultValue("c") String controlSide,
-                          @DefaultValue("b") String botSide) {
+        public final String serverSide;
+        public Targets(@DefaultValue("c") String controlSide,
+                       @DefaultValue("b") String botSide,
+                       @DefaultValue("s") String serverSide) {
             this.controlSide = controlSide;
             this.botSide = botSide;
+            this.serverSide = serverSide;
         }
     }
 

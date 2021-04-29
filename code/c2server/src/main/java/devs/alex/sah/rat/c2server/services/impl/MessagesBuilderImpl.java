@@ -24,15 +24,12 @@ public class MessagesBuilderImpl implements MessagesBuilder {
         return mConfig.delimiters.section + key + mConfig.delimiters.value + value;
     }
 
-    private void validateBasicMessageParam(){
-
-    }
 
     @Override
     public String generateBotEnvelope(String packageType, String module, String request, String RequiredResponse){
         return Utils.lengthCheck(
                 section(mConfig.keys.packageType, packageType) +
-                        section(mConfig.keys.module, module) +
+                        section(mConfig.keys.targetModule, module) +
                         section(mConfig.keys.requestID, request) +
                         section(mConfig.keys.responseType, RequiredResponse));
     }
@@ -41,8 +38,12 @@ public class MessagesBuilderImpl implements MessagesBuilder {
     public String generateBotEnvelope(String packageType, String module, String request){
         return Utils.lengthCheck(
                 section(mConfig.keys.packageType, packageType) +
-                        section(mConfig.keys.module, module) +
+                        section(mConfig.keys.targetModule, module) +
                         section(mConfig.keys.requestID, request));
+    }
+
+    @Override
+    public void validateBotEnvelope(Message<?> message, StringBuffer errors) {
     }
 
     @Override
@@ -81,6 +82,14 @@ public class MessagesBuilderImpl implements MessagesBuilder {
         return null;
     }
 
+    @Override
+    public String generateErrorEnvelope(String targetType) {
+        return Utils.lengthCheck(
+                section(mConfig.keys.packageType, mConfig.packages.singleMessage) +
+                section(mConfig.keys.targetModule, "error") +
+                section(mConfig.keys.targetType, mConfig.targets.serverSide));
+    }
+
 
     private void parseEnvelope(Message<?> message, String envelope, StringBuffer errors){
         String[] sections = envelope.split( mConfig.delimiters.section);
@@ -96,12 +105,12 @@ public class MessagesBuilderImpl implements MessagesBuilder {
                     message.setIsLast(value);
                 } else if(key.equals(mConfig.keys.packageType)){
                     message.setPackageType(value);
-                }else if(key.equals(mConfig.keys.module)){
-                    message.setModule(value);
-                }else if(key.equals(mConfig.keys.recipientID)){
-                    message.setRecipientID(value);
-                }else if(key.equals(mConfig.keys.recipientType)){
-                    message.setRecipientType(value);
+                }else if(key.equals(mConfig.keys.targetModule)){
+                    message.setTargetModule(value);
+                }else if(key.equals(mConfig.keys.targetID)){
+                    message.setTargetID(value);
+                }else if(key.equals(mConfig.keys.targetType)){
+                    message.setTargetType(value);
                 }else if(key.equals(mConfig.keys.fullMessageSize)){
                     message.setFullMessageSize(value);
                 }else if(key.equals(mConfig.keys.requestID)){
@@ -116,5 +125,18 @@ public class MessagesBuilderImpl implements MessagesBuilder {
             }
         }
     }
+
+    private void nullCheckBasic(Message<?> message, StringBuffer errors){
+        if(message.getPackageType() == null){
+            errors.append("PackageType cannot be null\n");
+        }
+        if (message.getTargetType() == null) {
+            errors.append("TargetType cannot be null\n");
+        }
+        if(message.getPackageType() == null){
+            errors.append("PackageType cannot be null\n");
+        }
+    }
+
 
 }
