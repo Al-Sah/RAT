@@ -1,5 +1,8 @@
 package devs.alex.sah.rat.c2server.models;
 
+import lombok.Getter;
+
+@Getter
 public class AssociativePair {
     String sessionUUID;
     String requestUUID;

@@ -26,35 +26,87 @@ public class MessagesBuilderImpl implements MessagesBuilder {
 
 
     @Override
-    public String generateBotEnvelope(String packageType, String module, String request, String RequiredResponse){
-        return Utils.lengthCheck(
-                section(mConfig.keys.packageType, packageType) +
-                        section(mConfig.keys.targetModule, module) +
-                        section(mConfig.keys.requestID, request) +
+    public String generateUser2BotFirstEnvelope(String module, String associative_request, String ResponseType, String fullSize) {
+        return Utils.lengthCheck(section(mConfig.keys.packageType, mConfig.packages.firstPart) +
+                        control2botEnvelopeBase(module, associative_request) +
+                        section(mConfig.keys.responseType, ResponseType) +
+                        section(mConfig.keys.fullMessageSize, fullSize));
+    }
+    @Override
+    public String generateUser2BotSingleEnvelope(String module, String associative_request, String RequiredResponse) {
+        return Utils.lengthCheck(section(mConfig.keys.packageType, mConfig.packages.singleMessage) +
+                        control2botEnvelopeBase(module, associative_request) +
                         section(mConfig.keys.responseType, RequiredResponse));
     }
+    @Override
+    public String generateUser2BotEnvelope(String module, String associativeRequest, String packageType){
+        return Utils.lengthCheck(section(mConfig.keys.packageType, packageType) +
+                control2botEnvelopeBase(module, associativeRequest));
+    }
+    private String control2botEnvelopeBase(String module, String associative_request){
+        return section(mConfig.keys.targetModule, module) + section(mConfig.keys.requestID, associative_request);
+    }
+
+
+
 
     @Override
-    public String generateBotEnvelope(String packageType, String module, String request){
-        return Utils.lengthCheck(
-                section(mConfig.keys.packageType, packageType) +
-                        section(mConfig.keys.targetModule, module) +
-                        section(mConfig.keys.requestID, request));
+    public String generateUser2UserFirstEnvelope(String userId, String module, String requiredResponse, String fullSize) {
+        return Utils.lengthCheck(section(mConfig.keys.packageType, mConfig.packages.firstPart) +
+                control2controlEnvelopeBase(module, userId) +
+                section(mConfig.keys.responseType, requiredResponse) +
+                section(mConfig.keys.fullMessageSize, fullSize));
     }
 
     @Override
-    public void validateBotEnvelope(Message<?> message, StringBuffer errors) {
+    public String generateUser2UserSingleEnvelope(String userId, String module, String requiredResponse) {
+        return Utils.lengthCheck(section(mConfig.keys.packageType, mConfig.packages.singleMessage) +
+                control2controlEnvelopeBase(module, userId) +
+                section(mConfig.keys.responseType, requiredResponse));
     }
 
     @Override
-    public String generateUserEnvelope(String packageType, String module, String userId, String RequiredResponse){  // FIXME
-        return Utils.lengthCheck(":PT:"+packageType+ "#M:"+ module + "#UID:" + userId +"#RPT:"+RequiredResponse);
+    public String generateUser2UserEnvelope(String userId, String module, String packageType) {
+        return Utils.lengthCheck(section(mConfig.keys.packageType, packageType) +
+                control2controlEnvelopeBase(module, userId));
     }
 
-    @Override
-    public String generateUserEnvelope(String packageType, String module, String userId){ // FIXME
-        return Utils.lengthCheck(":PT:"+packageType+ "#M:"+ module + "#UID:" + userId);
+    private String control2controlEnvelopeBase(String module, String userId){
+        return section(mConfig.keys.targetType, mConfig.targets.controlSide) +
+                section(mConfig.keys.targetModule, module) +
+                section(mConfig.keys.targetID, userId);
     }
+
+
+
+
+
+
+    @Override
+    public String generateBot2UserFirstEnvelope(String botId, String module, String requestId, String fullSize, String isLast) {
+        return Utils.lengthCheck(section(mConfig.keys.packageType, mConfig.packages.firstPart) +
+                        bot2controlEnvelopeBase(botId, module, requestId) +
+                        section(mConfig.keys.fullMessageSize, fullSize) +
+                        section(mConfig.keys.isLast, isLast));
+    }
+    @Override
+    public String generateBot2UserSingleEnvelope(String botId, String module, String requestId, String isLast) {
+        return Utils.lengthCheck(section(mConfig.keys.packageType, mConfig.packages.singleMessage) +
+                        bot2controlEnvelopeBase(botId, module, requestId) +
+                        section(mConfig.keys.isLast, isLast));
+    }
+    @Override
+    public String generateBot2UserEnvelope(String botId, String module, String requestId, String packageType) {
+        return Utils.lengthCheck(section(mConfig.keys.packageType, packageType) + bot2controlEnvelopeBase(botId, module, requestId));
+    }
+    private String bot2controlEnvelopeBase(String botId, String module, String requestId){
+        return section(mConfig.keys.targetType, mConfig.targets.botSide) +
+                section(mConfig.keys.targetID, botId) +
+                section(mConfig.keys.targetModule, module) +
+                section(mConfig.keys.requestID, requestId);
+    }
+
+
 
     @Override
     public Message<String> parseMessage(TextMessage message, StringBuffer errors){
@@ -124,17 +176,98 @@ public class MessagesBuilderImpl implements MessagesBuilder {
                 errors.append("Failed to read section: ").append(section).append(";\n");
             }
         }
+        if(message.getPackageType() == null){
+            errors.append("PackageType cannot be null\n");
+        }
     }
 
-    private void nullCheckBasic(Message<?> message, StringBuffer errors){
-        if(message.getPackageType() == null){
-            errors.append("PackageType cannot be null\n");
+
+    @Override
+    public void validateEnvelope(String codedEnvelope, StringBuffer errors, ValidationType validationType) {
+        String SectionRegex = mConfig.delimiters.section+"[a-zA-Z]+"+mConfig.delimiters.value+"[0-9a-zA-Z]+";
+        Pattern pattern = Pattern.compile("\\d{1,3}["+SectionRegex+"]{2,}"); // FIXME
+        Matcher matcher = pattern.matcher(codedEnvelope);
+        /* switch (validationType){
+           case bot2controlOutbox:
+            case control2botOutbox:
+            case control2controlOutbox:
+                while (matcher.find()){
+                    System.out.println(codedEnvelope.substring(matcher.start(), matcher.end()));
+                }
+                break;
+            default:
+                errors.append("Validation failed\n");
+        }*/
+    }
+
+
+
+    @Override
+    public void validateEnvelope(Message<?> message, StringBuffer errors, ValidationType validationType) {
+
+        switch (validationType){
+            case control2controlInbox:
+            case control2botInbox:
+                if(message.getPackageType().equals(mConfig.packages.continuation)|| message.getPackageType().equals(mConfig.packages.lastPart)){
+                    validateTargetParameters(message.getTargetType(), message.getTargetID(), errors);
+                }else{
+                    validateTargetParameters(message.getTargetType(), message.getTargetID(), message.getTargetModule(), errors);
+                }
+
+                if(isNullOrEmpty(message.getRequestID())) {
+                    errors.append("key [").append(mConfig.keys.requestID).append("] cannot be null or empty\n");
+                }
+                if((message.getPackageType().equals(mConfig.packages.singleMessage) || message.getPackageType().equals(mConfig.packages.firstPart))
+                        && isNullOrEmpty(message.getResponseType())){
+                    errors.append("key [").append(mConfig.keys.responseType).append("] cannot be null or empty\n");
+                }
+                if(message.getPackageType().equals(mConfig.packages.firstPart)){
+                    fullMessageSizeCheck(message.getFullMessageSize(), errors);
+                }
+                break;
+            case bot2controlInbox:
+                if(isNullOrEmpty(message.getRequestID())) {
+                    errors.append("key [").append(mConfig.keys.requestID).append("] cannot be null or empty\n");
+                }
+                if((message.getPackageType().equals(mConfig.packages.singleMessage) || message.getPackageType().equals(mConfig.packages.lastPart))
+                        && isNullOrEmpty(message.getIsLast())){
+                    errors.append("key [").append(mConfig.keys.isLast).append("] cannot be null or empty\n");
+                }
+                if(message.getPackageType().equals(mConfig.packages.firstPart)){
+                    fullMessageSizeCheck(message.getFullMessageSize(), errors);
+                }
+                break;
+            default:
+                errors.append("Validation failed\n");
         }
-        if (message.getTargetType() == null) {
-            errors.append("TargetType cannot be null\n");
+    }
+
+    private void validateTargetParameters(String type, String id, String module, StringBuffer errors){
+        if (isNullOrEmpty(module)) {
+            errors.append("key [").append(mConfig.keys.targetModule).append("] cannot be null or empty\n");
         }
-        if(message.getPackageType() == null){
-            errors.append("PackageType cannot be null\n");
+        if (isNullOrEmpty(type)){
+            errors.append("key [").append(mConfig.keys.targetType).append("] cannot be null or empty\n");
+        }
+        if (isNullOrEmpty(id)) {
+            errors.append("key [").append(mConfig.keys.targetID).append("] cannot be null or empty\n");
+        }
+    }
+    private void validateTargetParameters(String type, String id, StringBuffer errors){
+        if (isNullOrEmpty(type)){
+            errors.append("key [").append(mConfig.keys.targetType).append("] cannot be null or empty\n");
+        }
+        if (isNullOrEmpty(id)) {
+            errors.append("key [").append(mConfig.keys.targetID).append("] cannot be null or empty\n");
+        }
+    }
+    private boolean isNullOrEmpty(String value){
+        return value == null || value.isEmpty();
+    }
+
+    private void fullMessageSizeCheck(String fs, StringBuffer errors){
+        if(fs == null || fs.isEmpty()){
+            errors.append("key [").append(mConfig.keys.fullMessageSize).append("] cannot be null or empty\n");
         }
     }
 

@@ -37,63 +37,91 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
         this.mConfig = messagesConfiguration;
     }
 
-    private String handleFirstPackage(Message<?> message, WebSocketSession session, String association, StringBuffer errors){
+    private String handleUserFirstPackage(Message<?> message, WebSocketSession session, String id, StringBuffer errors){
 
         if(message.getTargetType().equals(mConfig.targets.botSide)){
-            if(session.getAttributes().put(
-                    CONTINUATION + message.getRequestID(),
-                    messagesBuilder.generateBotEnvelope(mConfig.packages.continuation, message.getTargetModule(), association)) != null){
+            if(session.getAttributes().put(CONTINUATION + message.getRequestID(),
+                    messagesBuilder.generateUser2BotEnvelope(mConfig.packages.continuation, message.getTargetModule(), id)) != null){
                 errors.append("Key [").append(CONTINUATION).append(message.getRequestID()).append("] exists\n");
             }
-            if(session.getAttributes().put(
-                    LAST_PART + message.getRequestID(),
-                    messagesBuilder.generateBotEnvelope(mConfig.packages.lastPart, message.getTargetModule(), association)) != null){
+            if(session.getAttributes().put(LAST_PART + message.getRequestID(),
+                    messagesBuilder.generateUser2BotEnvelope(mConfig.packages.lastPart, message.getTargetModule(), id)) != null){
                 errors.append("Key [").append(LAST_PART).append(message.getRequestID()).append("] exists\n");
             }
-            return messagesBuilder.generateBotEnvelope(mConfig.packages.continuation, message.getTargetModule(), association);
+            return messagesBuilder.generateUser2BotFirstEnvelope(message.getTargetModule(), id, message.getResponseType(), message.getFullMessageSize());
 
         } else  {
-            if(session.getAttributes().put(
-                    CONTINUATION + message.getRequestID(),
-                    messagesBuilder.generateUserEnvelope(mConfig.packages.continuation, message.getTargetModule(), association)) != null){
+            if(session.getAttributes().put(CONTINUATION + message.getRequestID(),
+                    messagesBuilder.generateUser2UserEnvelope(id, message.getTargetModule(), mConfig.packages.continuation)) != null){
                 errors.append("Key [").append(CONTINUATION).append(message.getRequestID()).append("] exists\n");
             }
-            if(session.getAttributes().put(
-                    LAST_PART + message.getRequestID(),
-                    messagesBuilder.generateUserEnvelope(mConfig.packages.lastPart, message.getTargetModule(), association)) != null){
-                errors.append("Key [").append(CONTINUATION).append(message.getRequestID()).append("] exists\n");
+            if(session.getAttributes().put(LAST_PART + message.getRequestID(),
+                    messagesBuilder.generateUser2UserEnvelope(id, message.getTargetModule(), mConfig.packages.lastPart)) != null){
+                errors.append("Key [").append(LAST_PART).append(message.getRequestID()).append("] exists\n");
             }
-            return messagesBuilder.generateUserEnvelope(mConfig.packages.continuation, message.getTargetModule(), association);
+            return messagesBuilder.generateUser2UserFirstEnvelope(message.getRequestID(), message.getTargetModule(), message.getResponseType(),message.getFullMessageSize());
         }
     }
 
-    private String handleSingleMessage(Message<?> message, String request){
+    private String handleUserSingleMessage(Message<?> message, String request){
         if(message.getTargetType().equals(mConfig.targets.botSide)){
-            return messagesBuilder.generateUserEnvelope(message.getPackageType(), message.getTargetModule(), request, message.getResponseType());
+            return messagesBuilder.generateUser2UserSingleEnvelope(request, message.getTargetModule(), message.getResponseType());
         } else {
-            return messagesBuilder.generateBotEnvelope(message.getPackageType(), message.getTargetModule(), request, message.getResponseType());
+            return messagesBuilder.generateUser2BotSingleEnvelope(message.getTargetModule(), request, message.getResponseType());
         }
     }
 
-    private WebSocketSession findTarget(String targetID, String targetType, StringBuffer errors){
+    private WebSocketSession findTarget(Message<?> message, String recipientType, String recipientID, String sender, StringBuffer errors){
         WebSocketSession result = null;
-        if(targetType.equals(mConfig.targets.botSide)){
-            // TODO Message<String> validate specified params
-            result = botWSSessionService.getSession(targetID);
-        } else if(targetType.equals(mConfig.targets.controlSide)){
-            // TODO Message<String> validate specified params
-            result = userWSSessionService.getSession(targetID);
+        if(recipientType == null){
+            errors.append("[Target] cannot be null\n");
+        } else if(recipientType.equals(mConfig.targets.botSide)){
+            if(sender.equals(mConfig.targets.controlSide)){
+                messagesBuilder.validateEnvelope(message,errors, MessagesBuilder.ValidationType.control2botInbox);
+                result = botWSSessionService.getSession(recipientID);
+            }else {
+                errors.append("Forbidden Action");
+            }
+        } else if(recipientType.equals(mConfig.targets.controlSide)){
+            if(sender.equals(mConfig.targets.controlSide)){
+                messagesBuilder.validateEnvelope(message,errors, MessagesBuilder.ValidationType.control2controlInbox);
+                result = userWSSessionService.getSession(recipientID);
+            } else if(sender.equals(mConfig.targets.botSide)){
+                messagesBuilder.validateEnvelope(message,errors, MessagesBuilder.ValidationType.bot2controlInbox);
+                result = userWSSessionService.getSession(recipientID);
+            }else {
+                errors.append("Forbidden Action");
+            }
         } else {
-            errors.append("Undefined target [").append(targetType).append("];\n");
+            errors.append("Undefined target [").append(recipientType).append("];\n");
         }
         if(result == null){
-            errors.append("Unable to find session [").append(targetID).append("] at ").append(targetType).append(";\n");
+            errors.append("Unable to find session [").append(recipientID).append("] at ").append(recipientType).append(";\n");
         }
         return result;
     }
 
     private void handleUserErrors(WebSocketSession session, StringBuffer errors){
         sendTextMessage(session, messagesBuilder.generateErrorEnvelope(mConfig.targets.controlSide), errors.toString());
+    }
+
+    private AssociativePair extractAssociativePair(WebSocketSession session, String sessionID, StringBuffer errors){
+        try {
+            Object result = session.getAttributes().get(sessionID);
+            if(result instanceof AssociativePair){
+                if(((AssociativePair) result).getSessionUUID() == null || ((AssociativePair) result).getSessionUUID().isEmpty()){
+                    errors.append("Failed to read associative pair");
+                }
+                if(((AssociativePair) result).getRequestUUID() == null || ((AssociativePair) result).getRequestUUID().isEmpty()){
+                    errors.append("Failed to read associative pair");
+                }
+                return (AssociativePair) result;
+            }
+            return null;
+        } catch (NullPointerException nullPointerException){
+            errors.append("Failed to extract associative pair");
+            return null;
+        }
     }
 
 
@@ -105,11 +133,38 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
             log.error(errors.toString());
             return;
         }
-        if(message.getTargetType().equals(mConfig.targets.serverSide)) {
-            // TODO
-        } else{
-            // TODO Find association
+
+        AssociativePair association = extractAssociativePair(session, message.getRequestID(), errors);
+        if(errors.length() != 0 ){
+            log.error(errors.toString());
+            return;
         }
+        WebSocketSession target = findTarget(message, mConfig.targets.controlSide, association.getSessionUUID(),  mConfig.targets.botSide, errors);
+        if(errors.length() != 0 ){
+            log.error(errors.toString());
+            return;
+        }
+/*        String envelope;
+        if(message.getPackageType().equals(mConfig.packages.continuation)){
+            envelope = (String)target.getAttributes().get(CONTINUATION + message.getRequestID());
+
+        } else if(message.getPackageType().equals(mConfig.packages.lastPart)){
+            envelope = (String)target.getAttributes().get(LAST_PART+ message.getRequestID());
+            target.getAttributes().remove(CONTINUATION + message.getRequestID());
+            target.getAttributes().remove(LAST_PART + message.getRequestID());
+
+        } else if(message.getPackageType().equals(mConfig.packages.firstPart)){
+            //envelope = handleFirstPackage(message, target, (String) session.getAttributes().get("userId"), mConfig.targets.botSide, errors);
+        } else if(message.getPackageType().equals(mConfig.packages.singleMessage)){
+            //envelope = handleSingleMessage(message, session.getAttributes().get("userId"));
+        } else{
+            handleUserErrors(session, errors.append(" Undefined package type [").append(message.getPackageType()).append("];\n"));
+            return;
+        }
+        if(errors.length() != 0 ){
+            handleUserErrors(session, errors);
+            return;
+        }*/
 
     }
 
@@ -130,7 +185,7 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
             // TODO
         } else{
 
-            WebSocketSession target = findTarget(message.getTargetID(), message.getTargetType(), errors);
+            WebSocketSession target = findTarget(message, message.getTargetType(),message.getTargetID(),mConfig.targets.controlSide, errors);
             if(errors.length() != 0 ){
                 handleUserErrors(session, errors);
                 return;
@@ -149,9 +204,9 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
                 target.getAttributes().remove(LAST_PART + message.getRequestID());
 
             } else if(message.getPackageType().equals(mConfig.packages.firstPart)){
-                envelope = handleFirstPackage(message, target, association, errors);
+                envelope = handleUserFirstPackage(message, target, association, errors);
             } else if(message.getPackageType().equals(mConfig.packages.singleMessage)){
-                envelope = handleSingleMessage(message, association);
+                envelope = handleUserSingleMessage(message, association);
             } else{
                 handleUserErrors(session, errors.append(" Undefined package type [").append(message.getPackageType()).append("];\n"));
                 return;
