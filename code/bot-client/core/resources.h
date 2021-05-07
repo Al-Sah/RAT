@@ -2,6 +2,8 @@
 // Created by al_sah on 05.03.21.
 //
 
+
+
 #ifndef BASIC_MODULE_RESOURCES_H
 #define BASIC_MODULE_RESOURCES_H
 
@@ -20,6 +22,10 @@ typedef websocketpp::client<websocketpp::config::asio_client> WSClient;
 typedef websocketpp::lib::shared_ptr<websocketpp::lib::thread> Thread;
 typedef websocketpp::close::status::value CloseStatusCode;
 typedef websocketpp::lib::error_code ErrorCode;
+
+#ifndef no_headers_includes
+#define no_headers_includes
+#endif
 
 struct ConnectionMetainfo{
 
@@ -56,7 +62,7 @@ namespace command {
 
     struct delimiters{
         char section = '#';
-        char id_val = ':';
+        char value = ':';
     };
 
     struct full_args_id {
@@ -69,12 +75,13 @@ namespace command {
     };
 
     struct short_args_id {
-        std::string response_type = "RPT";
+        std::string response_type = "RT";
         std::string package_type = "PT";
-        std::string recipient_id = "ID";
-        std::string request_id = "REQ";
-        std::string module = "M";
+        std::string target_id = "TID";
+        std::string request_id = "RID";
+        std::string module = "TM";
         std::string is_last = "L";
+        std::string full_payload_size = "FS";
     };
 
 }

@@ -3,9 +3,11 @@
 //
 
 #include "../WebsocketRunner.h"
-
 #include <utility>
+
+#ifdef headers_includes
 #include "../CommandsManager.h"
+#endif
 
 WebsocketRunner::~WebsocketRunner() {
 
@@ -106,12 +108,13 @@ void WebsocketRunner::on_message(const websocketpp::connection_hdl& hdl, const M
             << "\nMessage header: " << msg->get_header()
             << "\nMessage opcode: " << msg->get_opcode() << std::endl;
 
-    WSClient::connection_ptr connection_ptr = client.get_con_from_hdl(hdl);
+    std::string message = msg->get_payload();
 
-    msg->get_opcode();
-
-    commandsManager.lock()->handleRequestMessage(msg->get_payload());
-    //commandsManager->handleRequestMessage(msg->get_payload());
+#ifdef headers_includes
+    commandsManager.lock()->add_new_message(message);
+#else
+    this->add_to_queue(message);
+#endif
 }
 
 void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
@@ -146,6 +149,13 @@ WebsocketRunner::WebsocketRunner(WSRunnerProperties properties) : properties(std
     thread.reset(new websocketpp::lib::thread(&WSClient::run, &client));
 }
 
+
+#ifdef headers_includes
 void WebsocketRunner::setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager) {
     this->commandsManager = commandsManager;
 }
+#else
+void WebsocketRunner::set_messages_register(std::function<void(std::string)>& function) {
+    this->add_to_queue = function;
+}
+#endif

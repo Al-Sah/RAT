@@ -5,25 +5,32 @@
 #ifndef BASIC_MODULE_WEBSOCKETRUNNER_H
 #define BASIC_MODULE_WEBSOCKETRUNNER_H
 
-
 #include "resources.h"
-//#include "CommandsManager.h"
 
+#ifdef headers_includes
 class CommandsManager;
+#endif
 
 class WebsocketRunner {
 
 private:
-
     WSClient client;
-    Thread thread;
+    Thread thread; // client thread (messages listener)
 
     ConnectionMetainfo metainfo;
     WSRunnerProperties properties;
 
+#ifdef headers_includes
+private:
     std::weak_ptr<CommandsManager> commandsManager;
 public:
     void setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager);
+#else
+private:
+    std::function<void(std::string)> add_to_queue;
+public:
+    void set_messages_register(std::function<void(std::string)> &function);
+#endif
 
 private:
 
@@ -36,8 +43,8 @@ private:
     void on_message(const websocketpp::connection_hdl& hdl, const MessagePtr& msg);
 
 public:
-    WebsocketRunner(WSRunnerProperties properties);
 
+    WebsocketRunner(WSRunnerProperties properties);
     ~WebsocketRunner();
 
     bool setup_connection(const std::string &uri);

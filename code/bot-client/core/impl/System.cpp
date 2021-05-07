@@ -13,22 +13,43 @@ System::System(){
     this->commandsManager = std::make_shared<CommandsManager>(applicationContext->getCommandsManagerProperties());
     this->websocketRunner = std::make_shared<WebsocketRunner>(applicationContext->getWsRunnerProperties());
 
+#ifdef headers_includes
     commandsManager->setModulesManager(modulesManager);
     commandsManager->setWebsocketRunner(websocketRunner);
-
     websocketRunner->setCommandsManager(commandsManager);
-    modulesManager ->setCommandsManager(commandsManager);
+    modulesManager->setCommandsManager(commandsManager);
+#else
 
+    this->message_sender = [this](const std::string& message){
+        return this->websocketRunner->send_message(message);
+    };
+    this->message_register = [this](std::string message){
+        return this->commandsManager->add_new_message(message);
+    };
 
+    this->task_executor = [this](std::string module, std::string task_id, std::shared_ptr<std::string> payload){
+        return this->modulesManager->executeTask(module, task_id, payload);
+    };
+    this->module_result_handler = [this](std::string task_id, std::shared_ptr<std::string> payload, bool isLast){
+        return this->commandsManager->handleResponseMessage(task_id, payload, isLast);
+    };
+
+    this->commandsManager->setMessageSender(message_sender);
+    this->commandsManager->setTaskExecutor(task_executor);
+
+    this->websocketRunner->set_messages_register(message_register);
+    this->modulesManager->set_result_handler(module_result_handler);
+
+#endif
 }
 
-void System::run() {
+[[noreturn]] void System::run() {
     std::cout << "Hello, World!" << std::endl;
 
     websocketRunner->setup_connection("ws://localhost:8080/bot");
 
     std::string message;
-    while (true){
+/*    while (true){
         getline(std::cin, message);
         if(message == "break"){
             break;
@@ -42,7 +63,9 @@ void System::run() {
             continue;
         }
         websocketRunner->send_message(message);
-    }
+    }*/
+
+    while(true){}
 
     websocketRunner->close_connection();
 }

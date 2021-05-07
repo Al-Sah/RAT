@@ -39,11 +39,11 @@ void ParsedTextMessage::setModule(const std::string &module) {
 }
 
 const std::string &ParsedTextMessage::getRequestId() const {
-    return request_id;
+    return task_id;
 }
 
 void ParsedTextMessage::setRequestId(const std::string &requestId) {
-    request_id = requestId;
+    task_id = requestId;
 }
 
 const std::string &ParsedTextMessage::getResponseType() const {

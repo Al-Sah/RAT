@@ -14,9 +14,10 @@ private:
     std::string payload;
 
     std::string module;
-    std::string request_id;
+    std::string task_id;
     std::string package_type;
     std::string response_type;
+    std::string full_payload_size;
 
 public:
     ParsedTextMessage(std::map<std::string, std::string> envelopeParams, std::string payload);
