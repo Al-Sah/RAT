@@ -109,8 +109,6 @@ ParsedTextMessage* CommandsManager::parseMessage(const std::string &src) {
 }
 
 bool CommandsManager::validate_parsed_message(ParsedTextMessage message) {
-
-
     return false;
 }
 
@@ -126,15 +124,15 @@ void CommandsManager::keyCheck(ParsedTextMessage *message, std::string &key, std
     }
 }
 
-void CommandsManager::handleResponseMessage(std::string &task_id, std::shared_ptr<std::string> payload, bool isLast) {
+void CommandsManager::handleResponseMessage(TaskResult &message) {
     // TODO get max transferring message size, check it parse message by parts
 
     std::string result = generate_section(properties.short_args_id.package_type, "single") +
-                         generate_section(properties.short_args_id.request_id, task_id) +
-                         generate_section(properties.short_args_id.is_last, bool2str(isLast));
+                         generate_section(properties.short_args_id.request_id, message.getTaskId()) +
+                         generate_section(properties.short_args_id.is_last, bool2str(message.getIsLast()));
 
     this->length_check(result);
-    result.append(payload.operator*());
+    result.append(message.getPayload());
 
 
 #ifdef headers_includes
@@ -147,30 +145,64 @@ void CommandsManager::handleResponseMessage(std::string &task_id, std::shared_pt
 
 
 CommandsManager::CommandsManager(CommandsManagerProperties properties) : properties(std::move(properties)) {
-    this->ws_listener = std::thread(&CommandsManager::run_ws_listener, this);
+    this->inboxMessagesHandler = std::thread(&CommandsManager::runInboxMessagesHandler, this);
+    this->resultMessagesHandler = std::thread(&CommandsManager::runResultMessagesHandler, this);
 
 }
 
-[[noreturn]] void CommandsManager::run_ws_listener() {
+//pthread_setname_np(pthread_self(),"command manager");
+
+void CommandsManager::runInboxMessagesHandler() {
     std::string message;
-    //pthread_setname_np(pthread_self(),"command manager");
-    while (true){
-        if(this->inboxMessages.empty()){
-            std::cout << "zzzzzzz\n";
-            sleep(5);
-        } else {
+    while (run){
+        inboxMessagesMutex.lock();
+        if( !inboxMessages.empty()){
             message = inboxMessages.front();
             inboxMessages.pop();
+            inboxMessagesMutex.unlock();
             handleRequestMessage(message);
             std::cout << "handleRequestMessage(message)\n";
+        } else{
+            inboxMessagesMutex.unlock();
+            usleep(100);
+        }
+
+    }
+}
+
+void CommandsManager::runResultMessagesHandler() {
+    TaskResult message;
+    while (run){
+        resultMessagesMutex.lock();
+        if( ! resultMessages.empty()){
+            message = resultMessages.front();
+            resultMessages.pop();
+            inboxMessagesMutex.unlock();
+            handleResponseMessage(message);
+            std::cout << "handleRequestMessage(message)\n";
+        } else{
+            inboxMessagesMutex.unlock();
+            usleep(100);
         }
     }
+}
 
+void CommandsManager::stop_work() {
+    this->run = false;
 }
 
 
-void CommandsManager::add_new_message(std::string &payload) {
+
+void CommandsManager::register_inbox_message(std::string &payload) {
+    inboxMessagesMutex.lock();
     this->inboxMessages.emplace(payload);
+    inboxMessagesMutex.unlock();
+}
+
+void CommandsManager::register_result_message(TaskResult &message) {
+    resultMessagesMutex.lock();
+    this->resultMessages.emplace(message);
+    resultMessagesMutex.unlock();
 }
 
 

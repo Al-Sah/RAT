@@ -24,14 +24,14 @@ System::System(){
         return this->websocketRunner->send_message(message);
     };
     this->message_register = [this](std::string message){
-        return this->commandsManager->add_new_message(message);
+        return this->commandsManager->register_inbox_message(message);
     };
 
     this->task_executor = [this](std::string module, std::string task_id, std::shared_ptr<std::string> payload){
-        return this->modulesManager->executeTask(module, task_id, payload);
+        return this->modulesManager->handleTask(module, task_id, payload);
     };
-    this->module_result_handler = [this](std::string task_id, std::shared_ptr<std::string> payload, bool isLast){
-        return this->commandsManager->handleResponseMessage(task_id, payload, isLast);
+    this->module_result_handler = [this](TaskResult message){
+        return this->commandsManager->register_result_message(message);
     };
 
     this->commandsManager->setMessageSender(message_sender);
@@ -65,7 +65,9 @@ System::System(){
         websocketRunner->send_message(message);
     }*/
 
-    while(true){}
+    while(true){
+        sleep(100);
+    }
 
     websocketRunner->close_connection();
 }

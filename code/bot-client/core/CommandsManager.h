@@ -9,6 +9,7 @@
 #include "resources.h"
 #include "models/ParsedTextMessage.h"
 #include "models/Task.h"
+#include "models/TaskResult.h"
 
 #ifdef headers_includes
 class WebsocketRunner;
@@ -18,43 +19,54 @@ class ModulesManager;
 class CommandsManager { // TODO set command size limit (Implement temp storage)
 
 private:
-
-    std::thread ws_listener;
-
+    volatile bool run = true;
     CommandsManagerProperties properties;
 
+    std::mutex inboxMessagesMutex, resultMessagesMutex;
 
-    /// task_id, payload (temp)
+    /// parsing incoming messages, executing tasks by ModulesManager
+    std::thread inboxMessagesHandler;
+    /// parsing result messages in order to send, (call WebSocketRunner)
+    std::thread resultMessagesHandler;
+
+
+    /// map <task_id, payload>     temporary payload storage ( Delete on task executing)
     std::map<std::string, std::shared_ptr<std::string>> inboxTextMessagesBuffer;
     /// task_id, payload_part      Ready to send payload
-//    std::map<std::string, std::map<int, std::shared_ptr<std::string>>> inboxTextMessagesBuffer;
+    std::map<std::string, std::map<int, std::shared_ptr<std::string>>> outboxTextMessagesBuffer;
+
+
+    /// Tasks which are executing by modules (delete Task on last module response)
     std::list<Task> tasks;
 
 
+    std::queue<std::string> inboxMessages; // WebSocketRunner put message here
+    std::queue<TaskResult> resultMessages; // ModuleManager put message here
 
 
-    std::queue<std::string> inboxMessages;
 
-
-
-    void keyCheck(ParsedTextMessage *message, std::string &key, std::string &src) const;
     void length_check(std::string &raw_envelope); // TODO move to utils
     std::string generate_section(std::string key, std::string value) const;
+
+    // Inbox messages processing
+    static bool validate_parsed_message(ParsedTextMessage message); // TODO move to utils
+    void keyCheck(ParsedTextMessage *message, std::string &key, std::string &src) const;
+    ParsedTextMessage* parseMessage(const std::string& src);
+
+
+    void handleRequestMessage(const std::string& message);
+    void handleResponseMessage(TaskResult &message);
 
 public:
     CommandsManager(CommandsManagerProperties properties);
 
+    void register_inbox_message(std::string& payload);
+    void register_result_message(TaskResult& message);
 
-    ParsedTextMessage* parseMessage(const std::string& src);
-    static bool validate_parsed_message(ParsedTextMessage message); // TODO move to utils
-    void handleRequestMessage(const std::string& message);
-    void handleResponseMessage(std::string &task_id, std::shared_ptr<std::string> payload, bool isLast);
+    void runResultMessagesHandler(); // endless
+    void runInboxMessagesHandler(); // endless
 
-
-    void add_new_message(std::string& payload);
-
-
-    [[noreturn]] void run_ws_listener(); // endless
+    void stop_work();
 
 
 

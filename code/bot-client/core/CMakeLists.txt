@@ -17,6 +17,7 @@ set(CORE_SOURCES
         impl/ApplicationContext.cpp
         impl/ModulesManager.cpp
         models/src/ParsedTextMessage.cpp
+        models/src/TaskResult.cpp
         models/src/Task.cpp
         )
 

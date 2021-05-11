@@ -6,6 +6,7 @@
 #define BASIC_MODULE_MODULESMANAGER_H
 
 
+#include "models/TaskResult.h"
 #include <string>
 #include <list>
 #include <map>
@@ -25,11 +26,14 @@ public:
 
     ModulesManager(const ModulesManagerProperties &properties);
 
-
     // TODO extern modules
-// temp
-    void executeTask(std::string module, std::string task_id, std::shared_ptr<std::string> payload);
-    void handleResult(std::string &task_id, std::shared_ptr<std::string> payload, bool isLast = true);
+
+    void handleTask(std::string& module, std::string& task_id, std::shared_ptr<std::string>& payload);
+    void handleResult(std::string &task_id, std::string &payload, bool isLast = true);
+
+    void findModule(std::string id); // TODO
+
+    void executeTask(/*Module,*/ std::string payload, std::string taskId); // TODO
 
 #ifdef headers_includes
 private:
@@ -38,9 +42,9 @@ public:
     void setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager);
 #else
 private:
-    std::function<void(std::string,std::shared_ptr<std::string>,bool)> result_handler;
+    std::function<void(TaskResult)> result_handler;
 public:
-    void set_result_handler(std::function<void(std::string,std::shared_ptr<std::string>,bool)>& result_handler);
+    void set_result_handler(std::function<void(TaskResult)>& result_handler);
 #endif
 
 
