@@ -2,8 +2,9 @@
 // Created by al_sah on 09.03.21.
 //
 
+
 #include "../CommandsManager.h"
-#include <utility>
+
 
 #ifdef headers_includes
     #include "../WebsocketRunner.h"
@@ -161,7 +162,7 @@ void CommandsManager::handleResponseMessage(TaskResult &message) {
     SEND(result);
 }
 
-CommandsManager::CommandsManager(CommandsManagerProperties properties) : properties(std::move(properties)) {
+CommandsManager::CommandsManager(cm::commands_manager_properties properties) : properties(std::move(properties)) {
     this->module_id = "CommandsManager";
     this->inboxMessagesHandler = std::thread(&CommandsManager::runInboxMessagesHandler, this);
     this->resultMessagesHandler = std::thread(&CommandsManager::runResultMessagesHandler, this);

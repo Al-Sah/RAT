@@ -2,17 +2,10 @@
 // Created by al_sah on 09.03.21.
 //
 
-#ifndef BASIC_MODULE_MODULESMANAGER_H
-#define BASIC_MODULE_MODULESMANAGER_H
+#ifndef MODULES_MANAGER_H
+#define MODULES_MANAGER_H
 
-
-#include "models/TaskResult.h"
-#include <string>
-#include <list>
-#include <map>
-#include <memory>
-#include "resources.h"
-#include "modules/Module.h"
+#include "mm_resources.h"
 
 
 #ifdef headers_includes
@@ -22,7 +15,7 @@ class CommandsManager;
 class ModulesManager : public Module{
 private:
 
-    ModulesManagerProperties properties;
+    mm::modules_manager_properties properties;
 
     //std::map<std::string, Module*> modules;
     std::list<Module*> modules;
@@ -31,7 +24,7 @@ private:
     Module* findModule(std::string& id);
 
 public:
-    explicit ModulesManager(const ModulesManagerProperties &properties);
+    explicit ModulesManager(const mm::modules_manager_properties &properties);
     void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     void handleTask(std::string& module, std::string& task_id, std::shared_ptr<std::string>& payload);
@@ -56,4 +49,4 @@ public:
 };
 
 
-#endif //BASIC_MODULE_MODULESMANAGER_H
+#endif //MODULES_MANAGER_H

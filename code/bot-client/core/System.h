@@ -5,19 +5,14 @@
 #ifndef BASIC_MODULE_SYSTEM_H
 #define BASIC_MODULE_SYSTEM_H
 
-
+#include "configuration.h"
 #include "WebsocketRunner.h"
 #include "CommandsManager.h"
 #include "ApplicationContext.h"
 #include "ModulesManager.h"
-#include <thread>
 
-#ifndef no_headers_includes
-#define no_headers_includes
-#endif
 class System {
 private:
-
     std::shared_ptr<ApplicationContext> applicationContext;
     std::shared_ptr<CommandsManager> commandsManager;
     std::shared_ptr<ModulesManager> modulesManager;
@@ -32,7 +27,6 @@ public:
     System();
     [[noreturn]] void run();
 };
-
 
 
 #endif //BASIC_MODULE_SYSTEM_H

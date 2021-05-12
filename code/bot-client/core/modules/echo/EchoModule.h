@@ -14,7 +14,7 @@ class EchoModule : public Module {
 public:
     EchoModule();
 
-    std::string getId() const override;
+    [[nodiscard]] std::string getId() const override;
     //TaskResult executeTask(std::string payload) override;
     void executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
 };

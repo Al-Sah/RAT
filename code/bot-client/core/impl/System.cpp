@@ -3,7 +3,6 @@
 //
 
 #include "../System.h"
-
 #include <memory>
 
 System::System(){
@@ -39,7 +38,6 @@ System::System(){
 
     this->commandsManager->setMessageSender(message_sender);
     this->commandsManager->setTaskExecutor(task_executor);
-
     this->websocketRunner->set_messages_register(message_register);
     this->modulesManager->set_result_handler(module_result_handler);
 
@@ -51,26 +49,8 @@ System::System(){
 
     websocketRunner->setup_connection("ws://localhost:8080/bot");
 
-    std::string message;
-/*    while (true){
-        getline(std::cin, message);
-        if(message == "break"){
-            break;
-        } else if(message == "info"){
-            auto cm = websocketRunner->getConnectionMetainfo();
-            std::cout  << "\nconnection_hdl: "<< cm.hdl.lock()
-                       << "\nStatus: " << cm.status
-                       << "\nuri: " << cm.uri
-                       << "\nlastErrorCode: " << cm.lastErrorCode
-                       << "\nlastErrorReason: " << cm.lastErrorReason << std::endl;
-            continue;
-        }
-        websocketRunner->send_message(message);
-    }*/
-
     while(true){
         sleep(100);
     }
-
     websocketRunner->close_connection();
 }

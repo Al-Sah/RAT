@@ -26,8 +26,8 @@ WebsocketRunner::~WebsocketRunner() {
 
 bool WebsocketRunner::setup_connection(const std::string &uri) {
 
-    ErrorCode ec;
-    WSClient::connection_ptr connection = client.get_connection(uri, ec);
+    wsr::error_code ec;
+    wsr::ws_client::connection_ptr connection = client.get_connection(uri, ec);
     this->metainfo.uri = uri;
     if(!handleError(ec)) return false;
 
@@ -48,7 +48,7 @@ bool WebsocketRunner::setup_connection(const std::string &uri) {
         this->on_fail(connection_handle);
     });
 
-    //MessagePtr equals websocketpp::config::asio_client::message_type::ptr
+    //message_ptr equals websocketpp::config::asio_client::message_type::ptr
     connection->set_message_handler([this](auto && connection_handle, auto && MessagePtr){
         this->on_message(connection_handle, MessagePtr);
     });
@@ -60,8 +60,8 @@ bool WebsocketRunner::setup_connection(const std::string &uri) {
     return true;
 }
 
-bool WebsocketRunner::close_connection(CloseStatusCode code, const std::string& reason) {
-    ErrorCode ec;
+bool WebsocketRunner::close_connection(wsr::close_status_code code, const std::string& reason) {
+    wsr::error_code ec;
     client.close(this->metainfo.hdl, code, reason, ec);
     return !handleError(ec);
 }
@@ -69,26 +69,26 @@ bool WebsocketRunner::close_connection(CloseStatusCode code, const std::string& 
 
 bool WebsocketRunner::handleError(websocketpp::lib::error_code error_code) {
     if (error_code) {
-        metainfo.lastErrorCode = error_code;
-        metainfo.lastErrorReason = error_code.message();
+        metainfo.last_error_code = error_code;
+        metainfo.last_error_reason = error_code.message();
         return false;
     }else{
         return true;
     }
 }
 
-const ConnectionMetainfo &WebsocketRunner::getConnectionMetainfo() const {
+const wsr::connection_metainfo &WebsocketRunner::getConnectionMetainfo() const {
     return metainfo;
 }
 
 void WebsocketRunner::on_close(const websocketpp::connection_hdl& hdl) {
-    WSClient::connection_ptr con_ptr = client.get_con_from_hdl(hdl);
+    wsr::ws_client::connection_ptr con_ptr = client.get_con_from_hdl(hdl);
     this->metainfo.status = websocketpp::close::status::get_string(con_ptr->get_local_close_code());
-    this->metainfo.statusDetails = con_ptr->get_local_close_reason();
+    this->metainfo.status_details = con_ptr->get_local_close_reason();
     this->metainfo.closeStatusCode = con_ptr->get_local_close_code();
 
     std::cout << "\nConnection closed. close_code [" << this->metainfo.closeStatusCode
-        << "] status ["<<this->metainfo.status << "] close_reason [" << this->metainfo.statusDetails << "]\n" << std::flush;
+              << "] status [" << this->metainfo.status << "] close_reason [" << this->metainfo.status_details << "]\n" << std::flush;
 
     sleep(5);
     this->setup_connection("ws://localhost:8080/bot");
@@ -102,7 +102,7 @@ void WebsocketRunner::on_open(const websocketpp::connection_hdl& hdl) {
     << "] Bot-id: [" << client.get_con_from_hdl(hdl)->get_response().get_header("bot-id") << "]\n" << std::flush;
 }
 
-void WebsocketRunner::on_message(const websocketpp::connection_hdl& hdl, const MessagePtr& msg) {
+void WebsocketRunner::on_message(const websocketpp::connection_hdl& hdl, const wsr::message_ptr& msg) {
     std::cout<< "\nNew message: " << msg->get_payload() << std::endl;
     std::string message = msg->get_payload();
     REGISTER_MESSAGE(message);
@@ -110,30 +110,30 @@ void WebsocketRunner::on_message(const websocketpp::connection_hdl& hdl, const M
 
 void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
     this->metainfo.status = "Failed";
-    this->metainfo.lastErrorCode = client.get_con_from_hdl(hdl)->get_ec();
-    this->metainfo.lastErrorReason = client.get_con_from_hdl(hdl)->get_ec().message();
-    std::cout << "failed to connect [" << metainfo.lastErrorCode.message() << "]" << std::endl;
+    this->metainfo.last_error_code = client.get_con_from_hdl(hdl)->get_ec();
+    this->metainfo.last_error_reason = client.get_con_from_hdl(hdl)->get_ec().message();
+    std::cout << "failed to connect [" << metainfo.last_error_code.message() << "]" << std::endl;
 
     sleep(5);
     this->setup_connection("ws://localhost:8080/bot");
 }
 
 bool WebsocketRunner::send_message(const std::string &message) {
-    ErrorCode ec;
+    wsr::error_code ec;
     client.send(metainfo.hdl, message, websocketpp::frame::opcode::value::TEXT, ec);
     return !handleError(ec);
 }
 
-WebsocketRunner::WebsocketRunner(WSRunnerProperties properties) : properties(std::move(properties)) {
-    client.clear_access_channels(properties.accessLoggingLevel);
-    client.clear_error_channels(properties.errorsLoggingLevel);
+WebsocketRunner::WebsocketRunner(wsr::ws_runner_properties properties) : properties(std::move(properties)) {
+    client.clear_access_channels(properties.access_logging_level);
+    client.clear_error_channels(properties.errors_logging_level);
     client.init_asio();
     client.start_perpetual();
 
     metainfo.myID = this->properties.myID;
     this->module_id = "WebsocketRunner";
 
-    thread.reset(new websocketpp::lib::thread(&WSClient::run, &client));
+    thread.reset(new websocketpp::lib::thread(&wsr::ws_client::run, &client));
 }
 
 void WebsocketRunner::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {

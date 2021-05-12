@@ -8,16 +8,16 @@ ApplicationContext::ApplicationContext(){
     this->module_id = "ApplicationContext";
 }
 
-const WSRunnerProperties &ApplicationContext::getWsRunnerProperties() const {
-    return wsRunnerProperties;
+const wsr::ws_runner_properties &ApplicationContext::getWsRunnerProperties() const {
+    return ws_runner_properties;
 }
 
-const CommandsManagerProperties &ApplicationContext::getCommandsManagerProperties() const {
-    return commandsManagerProperties;
+const cm::commands_manager_properties  &ApplicationContext::getCommandsManagerProperties() const {
+    return commands_manager_properties;
 }
 
-const ModulesManagerProperties &ApplicationContext::getModulesManagerProperties() const {
-    return modulesManagerProperties;
+const mm::modules_manager_properties &ApplicationContext::getModulesManagerProperties() const {
+    return modules_manager_properties;
 }
 
 void ApplicationContext::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {

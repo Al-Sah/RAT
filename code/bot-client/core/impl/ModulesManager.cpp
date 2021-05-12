@@ -3,12 +3,7 @@
 //
 
 #include "../ModulesManager.h"
-#include "../modules/Module.h"
-#include <iostream>
-#include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
-#include <utility>
-#include <dlfcn.h>
+
 
 #ifdef headers_includes
 #include "../CommandsManager.h"
@@ -16,21 +11,24 @@
 void ModulesManager::setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager) {
     ModulesManager::commandsManager = commandsManager;
 }
+#define HANDLE_MODULE_RESPONSE(message)(commandsManager.lock()->handleResponseMessage(message))
 #else
 void ModulesManager::set_result_handler(std::function<void(TaskResult)> &result_handler) {
     this->result_handler = result_handler;
 }
+#define HANDLE_MODULE_RESPONSE(message)(this->result_handler(message))
 #endif
+#define GET_INSTANCE_FUNCTION "_Z11getInstancev"
 
 
 void ModulesManager::handleTask(std::string &module, std::string & task_id, std::shared_ptr<std::string> & payload_p) {
-    std::cout<< "Executing task\n Module ["<< module <<"] " << " Task_id ["<< task_id <<"] Payload ["<< payload_p.operator*() <<"] !!!" << std::flush;
+    //std::cout<< "Executing task Module ["<< module <<"] " << " Task_id ["<< task_id <<"] Payload ["<< payload_p.operator*() <<"] !!!" << std::flush;
     std::string payload = *payload_p;
 
     Module* module_ptr = findModule(module);
     if(module_ptr == nullptr){
         std::string error = "target_module [" + module + "] not found";
-        //this->handleResult(request_id, error);
+        //this->handleResult(request_id, error); //TODO
         return;
     }
 
@@ -48,35 +46,15 @@ void ModulesManager::handleResult(payload_type result, void *result_payload, std
         payload = *(std::string*) result_payload;
     }
     TaskResult message(task_id, payload, false, isLast);
-
-#ifdef headers_includes
-    commandsManager.lock()->handleResponseMessage(message);
-#else
-    this->result_handler(message);
-#endif
+    HANDLE_MODULE_RESPONSE(message);
 }
 
 
-
-
-/*void ModulesManager::handleResult(std::string &request_id, std::string &payload, bool isLast) {
-    TaskResult message(request_id, payload, isLast);
-#ifdef headers_includes
-    commandsManager.lock()->handleResponseMessage(message);
-#else
-    this->result_handler(message);
-#endif
-}*/
-
-
-
-ModulesManager::ModulesManager(const ModulesManagerProperties &properties) : properties(properties) {
+ModulesManager::ModulesManager(const mm::modules_manager_properties &properties) : properties(properties) {
     this->module_id = "ModulesManager";
     this->modules.push_back(this);
     this->loadExternalModules();
 }
-
-
 
 
 void ModulesManager::loadExternalModules(){
@@ -85,7 +63,6 @@ void ModulesManager::loadExternalModules(){
     boost::filesystem::recursive_directory_iterator iter(targetDir), eod;
 
     BOOST_FOREACH(boost::filesystem::path const& i, std::make_pair(iter, eod)){
-        std::cout << " === : " << i.string() << " - " << i.extension() <<  std::endl;
         if (!is_regular_file(i)  ||   i.extension() != ".so"){
             continue;
         }
@@ -93,11 +70,10 @@ void ModulesManager::loadExternalModules(){
 #ifdef WIN32
 #else
         void *handle = dlopen (i.string().c_str(), RTLD_LAZY);
-        auto pluggableModule = (getInstance_t)dlsym(handle, "_Z11getInstancev");
-        //getInstance_t pluggableModule = (getInstance_t)dlsym(handle, "getInstance");
+        auto pluggableModule = (getInstance_t)dlsym(handle, GET_INSTANCE_FUNCTION);
 #endif
         Module *mod = pluggableModule();
-        std::cout << "i'm  " << mod->getId() << std::endl;
+        std::cout << "Registered new external module [" << mod->getId() << "]\n";
         modules.push_back(mod);
     }
 }

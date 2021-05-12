@@ -1,16 +1,10 @@
 //
 // Created by al_sah on 09.03.21.
 //
+#ifndef MESSAGES_MANAGER_H
+#define MESSAGES_MANAGER_H
 
-#ifndef BASIC_MODULE_MESSAGESMANAGER_H
-#define BASIC_MODULE_MESSAGESMANAGER_H
-
-#include <list>
-#include "resources.h"
-#include "models/ParsedTextMessage.h"
-#include "models/Task.h"
-#include "models/TaskResult.h"
-#include "modules/Module.h"
+#include "cm_resources.h"
 
 #ifdef headers_includes
 class WebsocketRunner;
@@ -21,7 +15,7 @@ class CommandsManager : public Module { // TODO set command size limit (Implemen
 
 private:
     volatile bool run = true;
-    CommandsManagerProperties properties;
+    cm::commands_manager_properties properties;
 
     std::mutex inboxMessagesMutex, resultMessagesMutex;
 
@@ -58,7 +52,7 @@ private:
     void handleResponseMessage(TaskResult &message);
 
 public:
-    explicit CommandsManager(CommandsManagerProperties properties);
+    explicit CommandsManager(cm::commands_manager_properties properties);
     void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     void register_inbox_message(std::string& payload);
@@ -87,4 +81,4 @@ public:
 };
 
 
-#endif //BASIC_MODULE_MESSAGESMANAGER_H
+#endif //MESSAGES_MANAGER_H

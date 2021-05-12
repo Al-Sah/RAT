@@ -18,8 +18,3 @@ void EchoModule::executeTask(std::string payload, payload_type pt, std::function
     payload.append("(Echo)");
     callback(payload_type::text, &payload, true);
 }
-
-/*TaskResult EchoModule::executeTask(std::string payload) {
-    payload.append("(Echo)");
-    return TaskResult(payload, false, true);
-}*/
