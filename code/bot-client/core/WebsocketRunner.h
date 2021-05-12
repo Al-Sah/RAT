@@ -12,28 +12,14 @@
 class CommandsManager;
 #endif
 
-class WebsocketRunner : public Module{
-
+class WebsocketRunner : public Module {
 private:
+
     WSClient client;
     Thread thread; // client thread (messages listener)
 
-    ConnectionMetainfo metainfo;
+    ConnectionMetainfo metainfo = {};
     WSRunnerProperties properties;
-
-#ifdef headers_includes
-private:
-    std::weak_ptr<CommandsManager> commandsManager;
-public:
-    void setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager);
-#else
-private:
-    std::function<void(std::string)> add_to_queue;
-public:
-    void set_messages_register(std::function<void(std::string)> &function);
-#endif
-
-private:
 
     /// returns false in case if error caught, else -> true;
     [[nodiscard]] bool handleError(websocketpp::lib::error_code error_code);
@@ -46,8 +32,7 @@ private:
 public:
 
     void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
-
-    WebsocketRunner(WSRunnerProperties properties);
+    explicit WebsocketRunner(WSRunnerProperties properties);
     ~WebsocketRunner();
 
     bool setup_connection(const std::string &uri);
@@ -55,6 +40,18 @@ public:
     bool close_connection(CloseStatusCode code = websocketpp::close::status::normal, const std::string& reason = "Normal closing");
 
     const ConnectionMetainfo &getConnectionMetainfo() const;
+
+#ifdef headers_includes
+    private:
+    std::weak_ptr<CommandsManager> commandsManager;
+public:
+    void setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager);
+#else
+private:
+    std::function<void(std::string)> register_message;
+public:
+    void set_messages_register(std::function<void(std::string)> &function);
+#endif
 };
 
 

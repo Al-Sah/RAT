@@ -84,10 +84,10 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
     }
 
     private String handleUserSingleMessage(Message<?> message, String request) {
-        if (message.getTargetType().equals(mConfig.targets.botSide)) {
-            return messagesBuilder.generateUser2UserSingleEnvelope(request, message.getTargetModule(), message.getResponseType());
-        } else {
+        if (message.getTargetType().equals(mConfig.targets.botSide)) { // where to send
             return messagesBuilder.generateUser2BotSingleEnvelope(message.getTargetModule(), request, message.getResponseType());
+        } else {
+            return messagesBuilder.generateUser2UserSingleEnvelope(request, message.getTargetModule(), message.getResponseType());
         }
     }
 

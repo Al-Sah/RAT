@@ -35,6 +35,8 @@ struct ConnectionMetainfo{
 
     websocketpp::connection_hdl hdl;
 
+    size_t max_transferring_size = 524288;
+
     std::string statusDetails;
     std::string status;
 
@@ -46,7 +48,7 @@ struct ConnectionMetainfo{
 
 struct WSRunnerProperties{
 
-
+    size_t max_transferring_size = 524288;
     std::string myID = "NEW";
     std::string uris[2] = {"ws://localhost:8080/bot", "ws://localhost:8888/bot"};
 
