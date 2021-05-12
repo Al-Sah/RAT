@@ -100,5 +100,11 @@ struct ModulesManagerProperties{
 };
 
 
+enum payload_type{
+    text = 1,
+    file_hath = 2
+};
+
+
 
 #endif //BASIC_MODULE_RESOURCES_H

@@ -3,11 +3,11 @@
 //
 
 
-#include "BotModule.h"
+#include "Module.h"
 #include "echo/EchoModule.h"
 
 //extern "C"
-BotModule * getInstance(){
+Module * getInstance(){
     return new MODULE_CLASS();
 }
 

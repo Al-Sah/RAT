@@ -6,12 +6,17 @@
 #define BASIC_MODULE_ECHOMODULE_H
 
 
-#include "../BotModule.h"
+#include "../Module.h"
 
-class EchoModule : public BotModule {
+
+class EchoModule : public Module {
+
 public:
-    std::string name() override;
+    EchoModule();
 
+    std::string getId() const override;
+    //TaskResult executeTask(std::string payload) override;
+    void executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
 };
 
 

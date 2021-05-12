@@ -11,15 +11,18 @@
 class TaskResult {
     std::string task_id;
     std::string payload;
+    bool isFile;
     bool isLast;
 
 public:
     TaskResult() = default;
-    TaskResult(std::string &taskId, std::string &payload, bool isLast);
+    TaskResult(std::string &taskId, std::string &payload, bool isFile, bool isLast);
+    TaskResult(std::string &payload, bool isFile, bool isLast);
 
     const std::string &getTaskId() const;
     const std::string &getPayload() const;
     bool getIsLast() const;
+    bool getIsFile() const;
 };
 
 

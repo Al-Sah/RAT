@@ -136,7 +136,7 @@ void CommandsManager::handleResponseMessage(TaskResult &message) {
 
 
 #ifdef headers_includes
-    websocketRunner.lock()->send_message(result);
+    websocketRunner.lock()->send_message(payload_type);
 #else
    this->send_message_function(result);
 #endif
@@ -177,11 +177,11 @@ void CommandsManager::runResultMessagesHandler() {
         if( ! resultMessages.empty()){
             message = resultMessages.front();
             resultMessages.pop();
-            inboxMessagesMutex.unlock();
+            resultMessagesMutex.unlock();
             handleResponseMessage(message);
             std::cout << "handleRequestMessage(message)\n";
         } else{
-            inboxMessagesMutex.unlock();
+            resultMessagesMutex.unlock();
             usleep(100);
         }
     }

@@ -26,7 +26,7 @@ private:
 
     /// parsing incoming messages, executing tasks by ModulesManager
     std::thread inboxMessagesHandler;
-    /// parsing result messages in order to send, (call WebSocketRunner)
+    /// parsing payload_type messages in order to send, (call WebSocketRunner)
     std::thread resultMessagesHandler;
 
 

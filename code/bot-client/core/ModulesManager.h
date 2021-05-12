@@ -12,6 +12,7 @@
 #include <map>
 #include <memory>
 #include "resources.h"
+#include "modules/Module.h"
 
 
 #ifdef headers_includes
@@ -19,21 +20,24 @@ class CommandsManager;
 #endif
 
 class ModulesManager {
-
 private:
+
     ModulesManagerProperties properties;
+
+    std::list<Module*> modules;
+    void loadModules();
+
+    Module* findModule(std::string& id);
+
 public:
 
     ModulesManager(const ModulesManagerProperties &properties);
 
-    // TODO extern modules
-
     void handleTask(std::string& module, std::string& task_id, std::shared_ptr<std::string>& payload);
-    void handleResult(std::string &task_id, std::string &payload, bool isLast = true);
+    void handleResult(payload_type result, void* result_payload, std::string task_id, bool isLast);
 
-    void findModule(std::string id); // TODO
 
-    void executeTask(/*Module,*/ std::string payload, std::string taskId); // TODO
+
 
 #ifdef headers_includes
 private:
@@ -46,9 +50,6 @@ private:
 public:
     void set_result_handler(std::function<void(TaskResult)>& result_handler);
 #endif
-
-
-
 };
 
 
