@@ -125,6 +125,7 @@ void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
     this->metainfo.lastErrorCode = connection_ptr->get_ec();
 /*    this->metainfo.statusDetails = websocketpp::close::status::get_string(connection_ptr.);*/
     this->metainfo.lastErrorReason = connection_ptr->get_ec().message();
+    std::cout << "failed to connect\n" << metainfo.lastErrorCode << "  " << metainfo.lastErrorReason << std::endl;
     //std::this_thread::sleep_for();
 }
 
@@ -146,6 +147,8 @@ WebsocketRunner::WebsocketRunner(WSRunnerProperties properties) : properties(std
     metainfo = {};
     metainfo.myID = properties.myID;
 
+    this->module_id = "WebsocketRunner";
+
     thread.reset(new websocketpp::lib::thread(&WSClient::run, &client));
 }
 
@@ -158,4 +161,10 @@ void WebsocketRunner::setCommandsManager(const std::weak_ptr<CommandsManager> &c
 void WebsocketRunner::set_messages_register(std::function<void(std::string)>& function) {
     this->add_to_queue = function;
 }
+
+void WebsocketRunner::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
+
+
+}
+
 #endif

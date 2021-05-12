@@ -7,8 +7,9 @@
 
 
 #include "resources.h"
+#include "modules/Module.h"
 
-class ApplicationContext {
+class ApplicationContext : public Module{
 
 private:
     WSRunnerProperties wsRunnerProperties;
@@ -21,6 +22,7 @@ public:
     [[nodiscard]] const CommandsManagerProperties &getCommandsManagerProperties() const;
 
     ApplicationContext();
+    void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 };
 
 

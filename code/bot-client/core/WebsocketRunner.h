@@ -6,12 +6,13 @@
 #define BASIC_MODULE_WEBSOCKETRUNNER_H
 
 #include "resources.h"
+#include "modules/Module.h"
 
 #ifdef headers_includes
 class CommandsManager;
 #endif
 
-class WebsocketRunner {
+class WebsocketRunner : public Module{
 
 private:
     WSClient client;
@@ -43,6 +44,8 @@ private:
     void on_message(const websocketpp::connection_hdl& hdl, const MessagePtr& msg);
 
 public:
+
+    void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     WebsocketRunner(WSRunnerProperties properties);
     ~WebsocketRunner();

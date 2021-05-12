@@ -5,7 +5,7 @@
 #include "../ApplicationContext.h"
 
 ApplicationContext::ApplicationContext(){
-
+    this->module_id = "ApplicationContext";
 }
 
 const WSRunnerProperties &ApplicationContext::getWsRunnerProperties() const {
@@ -18,4 +18,8 @@ const CommandsManagerProperties &ApplicationContext::getCommandsManagerPropertie
 
 const ModulesManagerProperties &ApplicationContext::getModulesManagerProperties() const {
     return modulesManagerProperties;
+}
+
+void ApplicationContext::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
+
 }

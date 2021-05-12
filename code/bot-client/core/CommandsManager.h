@@ -10,13 +10,14 @@
 #include "models/ParsedTextMessage.h"
 #include "models/Task.h"
 #include "models/TaskResult.h"
+#include "modules/Module.h"
 
 #ifdef headers_includes
 class WebsocketRunner;
 class ModulesManager;
 #endif
 
-class CommandsManager { // TODO set command size limit (Implement temp storage)
+class CommandsManager : public Module { // TODO set command size limit (Implement temp storage)
 
 private:
     volatile bool run = true;
@@ -58,7 +59,8 @@ private:
     void handleResponseMessage(TaskResult &message);
 
 public:
-    CommandsManager(CommandsManagerProperties properties);
+    explicit CommandsManager(CommandsManagerProperties properties);
+    void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     void register_inbox_message(std::string& payload);
     void register_result_message(TaskResult& message);

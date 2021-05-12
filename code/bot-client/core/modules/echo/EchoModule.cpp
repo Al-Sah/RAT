@@ -6,11 +6,11 @@
 
 
 EchoModule::EchoModule() {
-    this->id = "echo";
+    this->module_id = "echo";
 }
 
 std::string EchoModule::getId() const {
-    return this->id;
+    return this->module_id;
 }
 
 

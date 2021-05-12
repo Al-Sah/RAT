@@ -12,11 +12,13 @@
 class Module {
 
 protected:
-    std::string id;
+    std::string module_id;
 
 public:
 
-    virtual std::string getId() const = 0;
+    virtual std::string getId() const{
+        return this->module_id;
+    }
     //virtual TaskResult executeTask(std::string payload);
     virtual void executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) = 0;
 

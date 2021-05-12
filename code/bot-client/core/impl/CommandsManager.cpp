@@ -145,6 +145,7 @@ void CommandsManager::handleResponseMessage(TaskResult &message) {
 
 
 CommandsManager::CommandsManager(CommandsManagerProperties properties) : properties(std::move(properties)) {
+    this->module_id = "CommandsManager";
     this->inboxMessagesHandler = std::thread(&CommandsManager::runInboxMessagesHandler, this);
     this->resultMessagesHandler = std::thread(&CommandsManager::runResultMessagesHandler, this);
 
@@ -222,3 +223,7 @@ void CommandsManager::setTaskExecutor(std::function<void(std::string, std::strin
     this->task_executor = task_executor;
 }
 #endif
+
+void CommandsManager::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
+
+}

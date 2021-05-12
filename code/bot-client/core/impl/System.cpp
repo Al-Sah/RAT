@@ -13,6 +13,9 @@ System::System(){
     this->commandsManager = std::make_shared<CommandsManager>(applicationContext->getCommandsManagerProperties());
     this->websocketRunner = std::make_shared<WebsocketRunner>(applicationContext->getWsRunnerProperties());
 
+    modulesManager->registerModule(commandsManager.get());
+    modulesManager->registerModule(websocketRunner.get());
+
 #ifdef headers_includes
     commandsManager->setModulesManager(modulesManager);
     commandsManager->setWebsocketRunner(websocketRunner);

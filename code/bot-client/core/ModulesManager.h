@@ -19,22 +19,25 @@
 class CommandsManager;
 #endif
 
-class ModulesManager {
+class ModulesManager : public Module{
 private:
 
     ModulesManagerProperties properties;
 
+    //std::map<std::string, Module*> modules;
     std::list<Module*> modules;
-    void loadModules();
+    void loadExternalModules();
 
     Module* findModule(std::string& id);
 
 public:
-
-    ModulesManager(const ModulesManagerProperties &properties);
+    explicit ModulesManager(const ModulesManagerProperties &properties);
+    void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     void handleTask(std::string& module, std::string& task_id, std::shared_ptr<std::string>& payload);
     void handleResult(payload_type result, void* result_payload, std::string task_id, bool isLast);
+
+    void registerModule(Module* module);
 
 
 

@@ -71,13 +71,15 @@ void ModulesManager::handleResult(payload_type result, void *result_payload, std
 
 
 ModulesManager::ModulesManager(const ModulesManagerProperties &properties) : properties(properties) {
-    this->loadModules();
+    this->module_id = "ModulesManager";
+    this->modules.push_back(this);
+    this->loadExternalModules();
 }
 
 
 
 
-void ModulesManager::loadModules(){
+void ModulesManager::loadExternalModules(){
 
     boost::filesystem::path targetDir("./");
     boost::filesystem::recursive_directory_iterator iter(targetDir), eod;
@@ -109,5 +111,13 @@ Module* ModulesManager::findModule(std::string& id) {
         }
     }
     return nullptr;
+}
+
+void ModulesManager::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
+
+}
+
+void ModulesManager::registerModule(Module* module) {
+    this->modules.push_back(module);
 }
 
