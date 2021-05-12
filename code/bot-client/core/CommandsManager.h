@@ -31,13 +31,13 @@ private:
     std::thread resultMessagesHandler;
 
 
-    /// map <task_id, payload>     temporary payload storage ( Delete on task executing)
+    /// map <request_id, payload>     temporary payload storage ( Delete on task executing)
     std::map<std::string, std::shared_ptr<std::string>> inboxTextMessagesBuffer;
-    /// task_id, payload_part      Ready to send payload
+    /// request_id, payload_part      Ready to send payload
     std::map<std::string, std::map<int, std::shared_ptr<std::string>>> outboxTextMessagesBuffer;
 
 
-    /// Tasks which are executing by modules (delete Task on last module response)
+    /// Tasks which are executing by modules (delete Task on last target_module response)
     std::list<Task> tasks;
 
 
@@ -45,14 +45,13 @@ private:
     std::queue<TaskResult> resultMessages; // ModuleManager put message here
 
 
-
-    void length_check(std::string &raw_envelope); // TODO move to utils
-    std::string generate_section(std::string key, std::string value) const;
+    static void length_check(std::string &raw_envelope); // TODO move to utils
+    [[nodiscard]] std::string generate_section(std::string key, std::string value) const;
 
     // Inbox messages processing
-    static bool validate_parsed_message(ParsedTextMessage message); // TODO move to utils
-    void keyCheck(ParsedTextMessage *message, std::string &key, std::string &src) const;
-    ParsedTextMessage* parseMessage(const std::string& src);
+    static std::string validate_parsed_message(ParsedTextMessage& message); // TODO move to utils
+    std::string keyCheck(ParsedTextMessage *message, std::string &key, std::string &value) const;
+    ParsedTextMessage* parseMessage(const std::string& src, std::string& errors);
 
 
     void handleRequestMessage(const std::string& message);

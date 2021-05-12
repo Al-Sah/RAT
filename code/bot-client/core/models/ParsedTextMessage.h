@@ -9,32 +9,51 @@
 #include <map>
 
 class ParsedTextMessage {
+
 private:
-    std::map<std::string, std::string> envelopeParams;
     std::string payload;
 
-    std::string module;
-    std::string task_id;
+    std::string target_module;
+    std::string request_id;
     std::string package_type;
     std::string response_type;
     std::string full_payload_size;
 
+
+    std::string target_type;
+    std::string target_id;
+    std::string is_last;
+
 public:
-    ParsedTextMessage(std::map<std::string, std::string> envelopeParams, std::string payload);
-    ParsedTextMessage(std::string payload);
+    ParsedTextMessage() = default;
+    explicit ParsedTextMessage(std::string payload);
 
-    void setEnvelopeParams(const std::map<std::string, std::string> &envelopeParams);
-    const std::string &getPayload() const;
-    const std::map<std::string, std::string> &params() const;
+    [[nodiscard]] const std::string &getPayload() const;
+    void setPayload(const std::string &payload);
 
-    const std::string &getPackageType() const;
+    [[nodiscard]] const std::string &getPackageType() const;
     void setPackageType(const std::string &packageType);
-    const std::string &getModule() const;
+
+    [[nodiscard]] const std::string &getModule() const;
     void setModule(const std::string &module);
-    const std::string &getRequestId() const;
+
+    [[nodiscard]] const std::string &getRequestId() const;
     void setRequestId(const std::string &requestId);
-    const std::string &getResponseType() const;
+
+    [[nodiscard]] const std::string &getResponseType() const;
     void setResponseType(const std::string &responseType);
+
+    [[nodiscard]] const std::string &getFullPayloadSize() const;
+    void setFullPayloadSize(const std::string &fullPayloadSize);
+
+    [[nodiscard]] const std::string &getTargetType() const;
+    void setTargetType(const std::string &targetType);
+
+    [[nodiscard]] const std::string &getTargetId() const;
+    void setTargetId(const std::string &targetId);
+
+    [[nodiscard]] const std::string &getIsLast() const;
+    void setIsLast(const std::string &isLast);
 
 };
 

@@ -65,33 +65,32 @@ namespace command {
         char value = ':';
     };
 
-    struct full_args_id {
-        std::string response_type = "RESPONSE_TYPE";
-        std::string package_type = "PACKAGE_TYPE";
-        std::string recipient_id = "RECIPIENT_ID";
-        std::string request_id = "REQUEST_ID";
-        std::string module = "MODULE";
-        std::string is_last = "LAST";
-    };
-
-    struct short_args_id {
+    struct keys {
         std::string response_type = "RT";
         std::string package_type = "PT";
         std::string target_id = "TID";
+        std::string target_type = "TT";
         std::string request_id = "RID";
-        std::string module = "TM";
+        std::string target_module = "TM";
         std::string is_last = "L";
         std::string full_payload_size = "FS";
+    };
+
+    struct packages {
+        std::string first_part = "first";
+        std::string continuation = "con";
+        std::string last_part = "last";
+        std::string single_message = "single";
     };
 
 }
 
 
 struct CommandsManagerProperties{
-    bool enable_args_id = true;
+    bool use_keys = true;
     command::delimiters delimiters;
-    command::full_args_id full_args_id;
-    command::short_args_id short_args_id;
+    command::packages packages;
+    command::keys keys;
 
 };
 

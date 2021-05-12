@@ -29,8 +29,8 @@ void ModulesManager::handleTask(std::string &module, std::string & task_id, std:
 
     Module* module_ptr = findModule(module);
     if(module_ptr == nullptr){
-        std::string error = "module [" + module + "] not found";
-        //this->handleResult(task_id, error);
+        std::string error = "target_module [" + module + "] not found";
+        //this->handleResult(request_id, error);
         return;
     }
 
@@ -59,8 +59,8 @@ void ModulesManager::handleResult(payload_type result, void *result_payload, std
 
 
 
-/*void ModulesManager::handleResult(std::string &task_id, std::string &payload, bool isLast) {
-    TaskResult message(task_id, payload, isLast);
+/*void ModulesManager::handleResult(std::string &request_id, std::string &payload, bool isLast) {
+    TaskResult message(request_id, payload, isLast);
 #ifdef headers_includes
     commandsManager.lock()->handleResponseMessage(message);
 #else

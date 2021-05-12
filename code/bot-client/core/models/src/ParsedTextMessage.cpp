@@ -4,19 +4,9 @@
 
 #include "../ParsedTextMessage.h"
 
-#include <utility>
-
-const std::map<std::string, std::string> &ParsedTextMessage::params() const {
-    return envelopeParams;
-}
-
 const std::string &ParsedTextMessage::getPayload() const {
     return payload;
 }
-
-ParsedTextMessage::ParsedTextMessage(
-    std::map<std::string, std::string> envelopeParams,
-    std::string payload) : envelopeParams(std::move(envelopeParams)), payload(std::move(payload)) {}
 
 ParsedTextMessage::ParsedTextMessage(std::string payload) {
     this->payload = std::move(payload);
@@ -31,19 +21,19 @@ void ParsedTextMessage::setPackageType(const std::string &packageType) {
 }
 
 const std::string &ParsedTextMessage::getModule() const {
-    return module;
+    return target_module;
 }
 
 void ParsedTextMessage::setModule(const std::string &module) {
-    ParsedTextMessage::module = module;
+    ParsedTextMessage::target_module = module;
 }
 
 const std::string &ParsedTextMessage::getRequestId() const {
-    return task_id;
+    return request_id;
 }
 
 void ParsedTextMessage::setRequestId(const std::string &requestId) {
-    task_id = requestId;
+    request_id = requestId;
 }
 
 const std::string &ParsedTextMessage::getResponseType() const {
@@ -54,7 +44,39 @@ void ParsedTextMessage::setResponseType(const std::string &responseType) {
     response_type = responseType;
 }
 
-void ParsedTextMessage::setEnvelopeParams(const std::map<std::string, std::string> &envelopeParams) {
-    ParsedTextMessage::envelopeParams = envelopeParams;
+void ParsedTextMessage::setPayload(const std::string &payload) {
+    ParsedTextMessage::payload = payload;
+}
+
+const std::string &ParsedTextMessage::getFullPayloadSize() const {
+    return full_payload_size;
+}
+
+void ParsedTextMessage::setFullPayloadSize(const std::string &fullPayloadSize) {
+    full_payload_size = fullPayloadSize;
+}
+
+const std::string &ParsedTextMessage::getTargetType() const {
+    return target_type;
+}
+
+void ParsedTextMessage::setTargetType(const std::string &targetType) {
+    target_type = targetType;
+}
+
+const std::string &ParsedTextMessage::getTargetId() const {
+    return target_id;
+}
+
+void ParsedTextMessage::setTargetId(const std::string &targetId) {
+    target_id = targetId;
+}
+
+const std::string &ParsedTextMessage::getIsLast() const {
+    return is_last;
+}
+
+void ParsedTextMessage::setIsLast(const std::string &isLast) {
+    is_last = isLast;
 }
 
