@@ -1,0 +1,3 @@
+#cmakedefine HEADERS_INCLUDES_ENABLE
+#cmakedefine BOT_ENABLE
+#cmakedefine CONTROL_ENABLE

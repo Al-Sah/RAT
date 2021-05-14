@@ -34,7 +34,13 @@ public:
     explicit WebsocketRunner(wsr::ws_runner_properties properties);
     ~WebsocketRunner();
 
+#ifdef BOT_ENABLE
     bool setup_connection(const std::string &uri);
+#else
+    bool setup_connection(const std::string &uri, const std::string &pswd);
+#endif
+
+
     bool send_message(const std::string &message);
     bool close_connection(wsr::close_status_code code = websocketpp::close::status::normal, const std::string& reason = "Normal closing");
 

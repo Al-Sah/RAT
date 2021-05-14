@@ -72,9 +72,11 @@ void ModulesManager::loadExternalModules(){
         void *handle = dlopen (i.string().c_str(), RTLD_LAZY);
         auto pluggableModule = (getInstance_t)dlsym(handle, GET_INSTANCE_FUNCTION);
 #endif
-        Module *mod = pluggableModule();
-        std::cout << "Registered new external module [" << mod->getId() << "]\n";
-        modules.push_back(mod);
+        if(pluggableModule != nullptr){
+            Module *mod = pluggableModule();
+            std::cout << "Registered new external module [" << mod->getId() << "]\n";
+            modules.push_back(mod);
+        }
     }
 }
 

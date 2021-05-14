@@ -11,7 +11,7 @@
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
 
-#include "modules/Module.h"
+#include <../modules/Module.h>
 #include "configuration.h"
 
 namespace wsr{

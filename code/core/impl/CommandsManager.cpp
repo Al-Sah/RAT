@@ -224,3 +224,9 @@ void CommandsManager::register_result_message(TaskResult &message) {
 void CommandsManager::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
 
 }
+
+CommandsManager::~CommandsManager() {
+    this->run = false;
+    this->resultMessagesHandler.join();
+    this->inboxMessagesHandler.join();
+}

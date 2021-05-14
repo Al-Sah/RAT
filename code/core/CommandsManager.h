@@ -53,6 +53,7 @@ private:
 
 public:
     explicit CommandsManager(cm::commands_manager_properties properties);
+    virtual ~CommandsManager();
     void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     void register_inbox_message(std::string& payload);
@@ -62,6 +63,7 @@ public:
     void runInboxMessagesHandler(); // endless
 
     void stop_work();
+
 
 
 

@@ -24,8 +24,12 @@ private:
     std::function<void(std::string, std::string, std::shared_ptr<std::string>)> task_executor;
 
 public:
+    const std::shared_ptr<ApplicationContext> &getApplicationContext() const;
+    const std::shared_ptr<CommandsManager> &getCommandsManager() const;
+    const std::shared_ptr<ModulesManager> &getModulesManager() const;
+    const std::shared_ptr<WebsocketRunner> &getWebsocketRunner() const;
+
     System();
-    [[noreturn]] void run();
 };
 
 

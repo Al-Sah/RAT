@@ -44,13 +44,18 @@ System::System(){
 #endif
 }
 
-[[noreturn]] void System::run() {
-    std::cout << "Hello, World!" << std::endl;
+const std::shared_ptr<ApplicationContext> &System::getApplicationContext() const {
+    return applicationContext;
+}
 
-    websocketRunner->setup_connection("ws://localhost:8080/bot");
+const std::shared_ptr<CommandsManager> &System::getCommandsManager() const {
+    return commandsManager;
+}
 
-    while(true){
-        sleep(100);
-    }
-    websocketRunner->close_connection();
+const std::shared_ptr<ModulesManager> &System::getModulesManager() const {
+    return modulesManager;
+}
+
+const std::shared_ptr<WebsocketRunner> &System::getWebsocketRunner() const {
+    return websocketRunner;
 }

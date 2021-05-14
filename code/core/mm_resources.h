@@ -7,7 +7,7 @@
 
 #include "models/TaskResult.h"
 #include "models/payload_type.h"
-#include "modules/Module.h"
+#include <../modules/Module.h>
 
 #include <iostream>
 #include <string>
