@@ -23,13 +23,20 @@ private:
     std::function<void(TaskResult)> module_result_handler;
     std::function<void(std::string, std::string, std::shared_ptr<std::string>)> task_executor;
 
-public:
-    const std::shared_ptr<ApplicationContext> &getApplicationContext() const;
-    const std::shared_ptr<CommandsManager> &getCommandsManager() const;
-    const std::shared_ptr<ModulesManager> &getModulesManager() const;
-    const std::shared_ptr<WebsocketRunner> &getWebsocketRunner() const;
+    std::function<void(wsr::ws_runner_properties &)> wsRunnerPropertiesUpdater;
+    std::function<void(wsr::connection_metainfo &)> connectionMetainfoUpdater;
+    //std::function<void(cm::commands_manager_properties &)> &commandsManagerPropertiesUpdater;
+    //std::function<void(mm::modules_manager_properties &)> &modulesManagerPropertiesUpdater;
 
-    System();
+
+public:
+    [[nodiscard]] const std::shared_ptr<ApplicationContext> &getApplicationContext() const;
+    [[nodiscard]] const std::shared_ptr<CommandsManager> &getCommandsManager() const;
+    [[nodiscard]] const std::shared_ptr<ModulesManager> &getModulesManager() const;
+    [[nodiscard]] const std::shared_ptr<WebsocketRunner> &getWebsocketRunner() const;
+
+
+    System(void * ui = nullptr);
 };
 
 

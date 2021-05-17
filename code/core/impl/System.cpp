@@ -5,9 +5,10 @@
 #include "../System.h"
 #include <memory>
 
-System::System(){
 
-    this->applicationContext = std::make_shared<ApplicationContext>();
+System::System(void * ui){
+
+    this->applicationContext = std::make_shared<ApplicationContext>(ui);
     this->modulesManager  = std::make_shared<ModulesManager> (applicationContext->getModulesManagerProperties());
     this->commandsManager = std::make_shared<CommandsManager>(applicationContext->getCommandsManagerProperties());
     this->websocketRunner = std::make_shared<WebsocketRunner>(applicationContext->getWsRunnerProperties());
@@ -35,6 +36,27 @@ System::System(){
     this->module_result_handler = [this](TaskResult message){
         return this->commandsManager->register_result_message(message);
     };
+
+#ifdef CONTROL_ENABLE
+/*    this->commandsManagerPropertiesUpdater = [this](auto properties){
+        this->applicationContext->updateCommandsManagerProperties(properties);
+    };*/
+
+    this->connectionMetainfoUpdater = [this](auto info){
+        this->applicationContext->updateConnectionMetainfo(info);
+    };
+
+/*    this->modulesManagerPropertiesUpdater = [this](auto properties){
+        this->applicationContext->updateModulesManagerProperties(properties);
+    };*/
+
+    this->wsRunnerPropertiesUpdater = [this](auto properties){
+        this->applicationContext->updateWsRunnerProperties (properties);
+    };
+
+    this->websocketRunner->setWsRunnerPropertiesUpdater(wsRunnerPropertiesUpdater);
+    this->websocketRunner->setConnectionMetainfoUpdater(connectionMetainfoUpdater);
+#endif
 
     this->commandsManager->setMessageSender(message_sender);
     this->commandsManager->setTaskExecutor(task_executor);

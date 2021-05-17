@@ -1,6 +1,6 @@
 #include "System.h"
 
 int main() { // For the test building
-    System sys;
+    System sys(nullptr);
     std::cout << "Test building...";
 }

@@ -61,11 +61,16 @@ bool WebsocketRunner::setup_connection(const std::string &uri) {
     connection->append_header("bot-id", this->properties.myID);
 #else
     connection->append_header("control-id", this->properties.myID);
-    connection->append_header("bot-id", pswd);
+    connection->append_header("authentication", pswd);
 #endif
 
     client.connect(connection);
     this->metainfo.hdl = connection->get_handle();
+
+#ifdef CONTROL_ENABLE
+    connectionMetainfoUpdater(this->metainfo);
+#endif
+
     return true;
 }
 
@@ -100,8 +105,11 @@ void WebsocketRunner::on_close(const websocketpp::connection_hdl& hdl) {
               << "] status [" << this->metainfo.status << "] close_reason [" << this->metainfo.status_details << "]\n" << std::flush;
 
 #ifdef BOT_ENABLE
-    sleep(5);
-    this->setup_connection("ws://localhost:8080/bot");
+    if(this->metainfo.closeStatusCode != websocketpp::close::status::normal){
+        sleep(5);
+        this->setup_connection("ws://localhost:8080/bot");
+    }
+
 #endif
 }
 
@@ -150,4 +158,14 @@ WebsocketRunner::WebsocketRunner(wsr::ws_runner_properties properties) : propert
 }
 
 void WebsocketRunner::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
+}
+
+void WebsocketRunner::setWsRunnerPropertiesUpdater(
+        const std::function<void(wsr::ws_runner_properties &)> &wsRunnerPropertiesUpdater) {
+    WebsocketRunner::wsRunnerPropertiesUpdater = wsRunnerPropertiesUpdater;
+}
+
+void WebsocketRunner::setConnectionMetainfoUpdater(
+        const std::function<void(wsr::connection_metainfo &)> &connectionMetainfoUpdater) {
+    WebsocketRunner::connectionMetainfoUpdater = connectionMetainfoUpdater;
 }

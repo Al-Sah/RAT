@@ -3,11 +3,13 @@ project(core)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(Boost COMPONENTS thread filesystem)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
-#target_include_directories(core /websocket-lib)
-#include_directories(websocket-lib ../modules)
-#target_include_directories(core websocket-lib)
+
+find_package(Boost COMPONENTS thread filesystem)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 set(CORE_EXTERNAL_LIBS ${Boost_LIBRARIES} dl)
 
@@ -17,9 +19,11 @@ set(CORE_SOURCES
         impl/System.cpp
         impl/ApplicationContext.cpp
         impl/ModulesManager.cpp
+        impl/DataTransfer.cpp
         models/src/ParsedTextMessage.cpp
         models/src/TaskResult.cpp
-        models/src/Task.cpp)
+        models/src/Task.cpp
+        DataTransfer.h)
 
 
 option(HEADERS_INCLUDES_ENABLE "zz" OFF)
@@ -38,7 +42,7 @@ else()
     message(STATUS "BOT_ENABLE              OFF")
 endif()
 
-#option(CONTROL_ENABLE "CONTROL_ENABLE"      OFF)
+option(CONTROL_ENABLE "CONTROL_ENABLE"      ON)
 if(CONTROL_ENABLE)
     message(STATUS "CONTROL_ENABLE          ON")
 else()
@@ -57,10 +61,10 @@ endif()
 configure_file(cmake_configuration.h.in cmake_configuration.h)
 
 if(NOT BOT_ENABLE AND NOT CONTROL_ENABLE)
-    message(STATUS "Test building")
+#[[    message(STATUS "Test building")
     include_directories(websocket-lib ../modules)
     add_executable(test ${CORE_SOURCES} main.cpp)
-    target_link_libraries (test ${CORE_EXTERNAL_LIBS})
+    target_link_libraries (test ${CORE_EXTERNAL_LIBS} Qt5::Widgets)]]
 endif()
 
 #add_library(zzz1 ${CORE_SOURCES})

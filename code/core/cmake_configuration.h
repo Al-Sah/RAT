@@ -1,3 +1,3 @@
 /* #undef HEADERS_INCLUDES_ENABLE */
-#define BOT_ENABLE
-/* #undef CONTROL_ENABLE */
+//#define BOT_ENABLE
+#define CONTROL_ENABLE

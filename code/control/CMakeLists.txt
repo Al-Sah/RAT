@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(control LANGUAGES CXX)
+project(control)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -26,7 +26,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #endif()
 
 
+option(BOT_ENABLE ON)
+
 option(CONTROL_ENABLE ON)
+
+
 include_directories(../core ../core/websocket-lib ../modules)
 add_subdirectory(../core core-lib)
 
@@ -36,9 +40,12 @@ set(CORE_SOURCES
         ../core/impl/System.cpp
         ../core/impl/ApplicationContext.cpp
         ../core/impl/ModulesManager.cpp
+        ../core/impl/DataTransfer.cpp
         ../core/models/src/ParsedTextMessage.cpp
         ../core/models/src/TaskResult.cpp
         ../core/models/src/Task.cpp)
+
+set(CORE_HEADERS  ../core/DataTransfer.h)
 
 find_package(Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 #find_package(Qt<QTVERSION> COMPONENTS Widgets LinguistTools REQUIRED)
@@ -50,14 +57,21 @@ set(TS_FILES control_en_150.ts)
 add_library(zzz SHARED test_2.cpp)
 target_link_libraries(zzz PRIVATE Qt5::Widgets)
 
+
 add_executable(control
     main.cpp
+    test.h
+    info_blocks.h
     main_window.cpp
     main_window.h
-    test.h
     main_window.ui
+
+    ConnectionSetupDialog.cpp
+    ConnectionSetupDialog.h
+    ConnectionSetupDialog.ui
     ${TS_FILES}
     ${CORE_SOURCES}
+    ${CORE_HEADERS}
 )
 
 

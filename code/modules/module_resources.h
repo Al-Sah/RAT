@@ -5,8 +5,8 @@
 #ifndef CORE_MODULE_RESOURCES_H
 #define CORE_MODULE_RESOURCES_H
 
-#include "../client-core/models/TaskResult.h"
-#include "../client-core/models/payload_type.h"
+#include "../core/models/TaskResult.h"
+#include "../core/models/payload_type.h"
 
 #include <functional>
 
