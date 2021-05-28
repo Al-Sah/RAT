@@ -31,12 +31,14 @@ private:
     std::map<std::string, std::map<int, std::shared_ptr<std::string>>> outboxTextMessagesBuffer;
 
 
-    /// Tasks which are executing by modules (delete Task on last target_module response)
-    std::list<Task> tasks;
+    /// Tasks which are executing by modules (delete TaskInfo on last target_module response)
+    std::list<TaskInfo> tasks;
 
 
     std::queue<std::string> inboxMessages; // WebSocketRunner put message here
-    std::queue<TaskResult> resultMessages; // ModuleManager put message here
+
+    std::queue<std::pair<TaskResult,ParsedTextMessage>> resultMessages; // ModuleManager put message here
+    // TODO resultMessages as TaskResult and ParsedMessage
 
 
     static void length_check(std::string &raw_envelope); // TODO move to utils
@@ -49,7 +51,7 @@ private:
 
 
     void handleRequestMessage(const std::string& message);
-    void handleResponseMessage(TaskResult &message);
+    void handleResponseMessage(TaskResult &message, ParsedTextMessage &parsedTextMessage);
 
 public:
     explicit CommandsManager(cm::commands_manager_properties properties);
@@ -57,7 +59,7 @@ public:
     void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     void register_inbox_message(std::string& payload);
-    void register_result_message(TaskResult& message);
+    void register_result_message(TaskResult &task, ParsedTextMessage &parsedMessage);
 
     void runResultMessagesHandler(); // endless
     void runInboxMessagesHandler(); // endless

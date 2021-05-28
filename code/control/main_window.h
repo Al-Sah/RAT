@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDateTime>
+#include <QString>
 #include "../core/System.h"
 #include "info_blocks.h"
 #include "ConnectionSetupDialog.h"
@@ -19,12 +21,18 @@ private:
     Ui::MainWindow *ui;
     System* system;
     ConnectionSetupDialog* csd;
+    QDateTime lastConnentionTime;
 
     ConnectionMetaInfo connectionMetainfo;
+    WSRProperties wsrProperties;
+
+
+
+    Module* serverInteraction;
 
     void setup_connection(QString url, QString pawd);
-
     ConnectionMetaInfo reformat(wsr::connection_metainfo connectionMetainfo);
+    WSRProperties reformat(wsr::ws_runner_properties ws_runner_properties);
 
 public slots:
     void on_conection_button_clicked();
@@ -33,6 +41,7 @@ public slots:
     void updateConnectionMetainfoUI(wsr::connection_metainfo connectionMetainfo);
     void updateCommandsManagerPropertiesUI(cm::commands_manager_properties commandsManagerProperties);
     void updateModulesManagerPropertiesUI(mm::modules_manager_properties modulesManagerProperties);
+    void updateTargetsRequest();
 
 
 public:

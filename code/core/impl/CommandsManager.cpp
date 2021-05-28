@@ -30,9 +30,9 @@
 #endif
 
 
-std::string bool2str(bool b){
+/*std::string bool2str(bool b){
     return b ? "1" : "0";
-}
+}*/
 
 std::string CommandsManager::generate_section(std::string key, std::string value) const{
     return properties.delimiters.section + key + properties.delimiters.value + value;
@@ -61,7 +61,7 @@ void CommandsManager::handleRequestMessage(const std::string& src) {
     if(pack_type == properties.packages.first_part){
         inboxTextMessagesBuffer.emplace(request_id, std::make_shared<std::string>(message->getPayload()));
         if(message->getResponseType().empty() || message->getResponseType() != "none"){
-            tasks.push_back(*(new Task(message)));
+            tasks.push_back(*(new TaskInfo(message)));
         }
     } else if (pack_type == properties.packages.continuation){
         inboxTextMessagesBuffer.find(request_id)->second->append( message->getPayload());
@@ -74,7 +74,7 @@ void CommandsManager::handleRequestMessage(const std::string& src) {
 
     if(pack_type == properties.packages.single_message){
         if(message->getResponseType().empty() || message->getResponseType() != "none"){
-            tasks.push_back(*(new Task(message)));
+            tasks.push_back(*(new TaskInfo(message)));
         }
         EXECUTE(message->getModule(), request_id, std::make_shared<std::string>(message->getPayload()));
     }
@@ -87,6 +87,10 @@ ParsedTextMessage* CommandsManager::parseMessage(const std::string &src, std::st
 
     try{ // Extracting envelope
         std::string::size_type position = src.find_first_of(properties.delimiters.section);
+        if(position == std::string::npos){
+            errors.append("Failed to extract envelope");
+            return new ParsedTextMessage();
+        }
         envelope_size = std::stoi(src.substr(0, position));
         envelope = src.substr(position + 1, envelope_size - position -1);
     } catch (...){
@@ -149,13 +153,21 @@ std::string CommandsManager::keyCheck(ParsedTextMessage *message, std::string &k
     return "";
 }
 
-void CommandsManager::handleResponseMessage(TaskResult &message) {
+void CommandsManager::handleResponseMessage(TaskResult &message, ParsedTextMessage &parsedTextMessage) {
     // TODO get max transferring message size, check it parse message by parts
-
-    std::string result = generate_section(properties.keys.package_type, properties.packages.single_message) +
-                         generate_section(properties.keys.request_id, message.getTaskId()) +
-                         generate_section(properties.keys.is_last, bool2str(message.getIsLast()));
-
+    std::string result;
+#ifdef BOT_ENABLE
+    result = generate_section(properties.keys.package_type, properties.packages.single_message) +
+             generate_section(properties.keys.request_id, message.getTaskId()) +
+             generate_section(properties.keys.is_last, bool2str(message.getIsLast()));
+#endif
+#ifdef CONTROL_ENABLE
+    result = generate_section(properties.keys.package_type, properties.packages.single_message) +
+             generate_section(properties.keys.target_type, parsedTextMessage.getTargetType()) +
+             generate_section(properties.keys.target_id, parsedTextMessage.getTargetId()) +
+             generate_section(properties.keys.target_module, parsedTextMessage.getModule()) +
+             generate_section(properties.keys.response_type, parsedTextMessage.getResponseType());
+#endif
     this->length_check(result);
     result.append(message.getPayload());
 
@@ -166,7 +178,6 @@ CommandsManager::CommandsManager(cm::commands_manager_properties properties) : p
     this->module_id = "CommandsManager";
     this->inboxMessagesHandler = std::thread(&CommandsManager::runInboxMessagesHandler, this);
     this->resultMessagesHandler = std::thread(&CommandsManager::runResultMessagesHandler, this);
-
 }
 
 //pthread_setname_np(pthread_self(),"command manager");
@@ -184,19 +195,18 @@ void CommandsManager::runInboxMessagesHandler() {
             inboxMessagesMutex.unlock();
             usleep(100);
         }
-
     }
 }
 
 void CommandsManager::runResultMessagesHandler() {
-    TaskResult message;
+    std::pair<TaskResult, ParsedTextMessage> result;
     while (run){
         resultMessagesMutex.lock();
         if( ! resultMessages.empty()){
-            message = resultMessages.front();
+            result = resultMessages.front();
             resultMessages.pop();
             resultMessagesMutex.unlock();
-            handleResponseMessage(message);
+            handleResponseMessage(result.first, result.second);
             std::cout << "handleRequestMessage(message)\n";
         } else{
             resultMessagesMutex.unlock();
@@ -215,9 +225,9 @@ void CommandsManager::register_inbox_message(std::string &payload) {
     inboxMessagesMutex.unlock();
 }
 
-void CommandsManager::register_result_message(TaskResult &message) {
+void CommandsManager::register_result_message(TaskResult &task, ParsedTextMessage &parsedMessage) {
     resultMessagesMutex.lock();
-    this->resultMessages.emplace(message);
+    this->resultMessages.emplace(std::make_pair(task,parsedMessage));
     resultMessagesMutex.unlock();
 }
 

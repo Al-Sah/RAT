@@ -12,7 +12,7 @@
 class EchoModule : public Module {
 
 public:
-    EchoModule();
+    EchoModule(std::function<void(payload_type, void*, void*)> &callback, void* data);
 
     [[nodiscard]] std::string getId() const override;
     //TaskResult executeTask(std::string payload) override;

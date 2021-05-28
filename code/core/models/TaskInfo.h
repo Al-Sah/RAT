@@ -2,13 +2,13 @@
 // Created by al_sah on 20.04.21.
 //
 
-#ifndef CORE_TASK_H
-#define CORE_TASK_H
+#ifndef CORE_TASKINFO_H
+#define CORE_TASKINFO_H
 
 #include "ParsedTextMessage.h"
 #include <string>
 
-class Task {
+class TaskInfo {
 
 private:
     std::string module;
@@ -16,8 +16,8 @@ private:
     std::string response_type;
 public:
 
-    Task(const std::string &module, const std::string &requestId, const std::string &responseType);
-    Task(ParsedTextMessage *message);
+    TaskInfo(const std::string &module, const std::string &requestId, const std::string &responseType);
+    TaskInfo(ParsedTextMessage *message);
 
     const std::string &getModule() const;
     void setModule(const std::string &module);
@@ -31,4 +31,4 @@ public:
 };
 
 
-#endif //CORE_TASK_H
+#endif //CORE_TASKINFO_H

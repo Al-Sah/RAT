@@ -20,6 +20,8 @@ private:
     wsr::connection_metainfo metainfo = {};
     wsr::ws_runner_properties properties;
 
+private:
+
     /// returns false in case if error caught, else -> true;
     [[nodiscard]] bool handleError(websocketpp::lib::error_code error_code);
 
@@ -30,12 +32,13 @@ private:
 
 public:
 
+
     void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
     explicit WebsocketRunner(wsr::ws_runner_properties properties);
     ~WebsocketRunner();
 
 #ifdef BOT_ENABLE
-    bool setup_connection(const std::string &uri);
+    bool setup_c onnection(const std::string &uri);
 #else
     bool setup_connection(const std::string &uri, const std::string &pswd);
 #endif
@@ -44,10 +47,10 @@ public:
     bool send_message(const std::string &message);
     bool close_connection(wsr::close_status_code code = websocketpp::close::status::normal, const std::string& reason = "Normal closing");
     const wsr::connection_metainfo &getConnectionMetainfo() const;
-
+    const wsr::ws_runner_properties &getProperties() const;
 
 #ifdef headers_includes
-    private:
+private:
     std::weak_ptr<CommandsManager> commandsManager;
 public:
     void setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager);

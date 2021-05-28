@@ -43,7 +43,7 @@ set(CORE_SOURCES
         ../core/impl/DataTransfer.cpp
         ../core/models/src/ParsedTextMessage.cpp
         ../core/models/src/TaskResult.cpp
-        ../core/models/src/Task.cpp)
+        ../core/models/src/TaskInfo.cpp)
 
 set(CORE_HEADERS  ../core/DataTransfer.h)
 
@@ -56,6 +56,7 @@ set(TS_FILES control_en_150.ts)
 
 add_library(zzz SHARED test_2.cpp)
 target_link_libraries(zzz PRIVATE Qt5::Widgets)
+
 
 
 add_executable(control
@@ -73,6 +74,10 @@ add_executable(control
     ${CORE_SOURCES}
     ${CORE_HEADERS}
 )
+
+add_compile_definitions(MODULE_CLASS=serverInteraction MODULE_FOLDER=../modules/control-side/server-interaction)
+add_library(server_interaction SHARED ../modules/control-side/server-interaction/serverInteraction.cpp ../modules/module.cpp)
+target_link_libraries (server_interaction Qt5::Widgets)
 
 
 target_link_libraries(control PRIVATE Qt5::Widgets ${Boost_LIBRARIES} dl zzz)

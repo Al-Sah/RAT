@@ -4,19 +4,17 @@
 #include "test.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
+    this->system = new System(this);
+    this->csd = new ConnectionSetupDialog();
+    ui->setupUi(this);
+    QString sModule = "serverInteraction";
+    serverInteraction = this->system->getModulesManager()->findModule(sModule.toStdString());
+
+    connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(on_conection_button_clicked()));
+    connect(ui->updateTargetsButton, SIGNAL(clicked(bool)), this, SLOT(updateTargetsRequest()));
 
 
-   this->system = new System(this);
-   this->csd = new ConnectionSetupDialog();
-   ui->setupUi(this);
-
-   getSomeLayout(ui->gridLayout, this);
-
-   //ui->gridLayout->addWidget(new QPushButton("OK"), 0, 0);
-   //ui->gridLayout->addWidget(new QPushButton("OK", this), 1, 1);
-   //ui->gridLayout->addWidget(new QPushButton("OK", this), 2, 2);
-
-   connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(on_conection_button_clicked()));
+    updateWsRunnerPropertiesUI(system->getWebsocketRunner()->getProperties());
 
 }
 
@@ -35,11 +33,17 @@ void MainWindow::on_conection_button_clicked(){
 
     system->getWebsocketRunner()->setup_connection(link.toStdString(), pswd.toStdString());
     //csd->show();
+    lastConnentionTime = QDateTime::currentDateTime();
+    ui->label_lct_val->setText(this->lastConnentionTime.toString());
 }
 
 
 void MainWindow::updateWsRunnerPropertiesUI(wsr::ws_runner_properties wsRunnerProperties){
+    this->wsrProperties = reformat(wsRunnerProperties);
 
+    ui->label_ell_val->setText(this->wsrProperties.errors_logging_level);
+    ui->label_all_val->setText(this->wsrProperties.access_logging_level);
+    ui->label_wsr_myid_val->setText(this->wsrProperties.myID);
 }
 
 void MainWindow::updateConnectionMetainfoUI(wsr::connection_metainfo connectionMetainfo){
@@ -49,6 +53,10 @@ void MainWindow::updateConnectionMetainfoUI(wsr::connection_metainfo connectionM
     ui->mms_val->setText(this->connectionMetainfo.maxTransferringSize);
     ui->uri_val->setText(this->connectionMetainfo.uri);
     ui->status_val->setText(this->connectionMetainfo.status);
+    ui->label_lec_val->setText(this->connectionMetainfo.lastErrorCode);
+    ui->label_ler_val->setText(this->connectionMetainfo.lastErrorReason);
+    ui->label_status_details_val->setText(this->connectionMetainfo.status_details);
+
 }
 
 void MainWindow::updateCommandsManagerPropertiesUI(cm::commands_manager_properties commandsManagerProperties){
@@ -59,7 +67,10 @@ void MainWindow::updateModulesManagerPropertiesUI(mm::modules_manager_properties
 
 }
 
-
+void MainWindow::updateTargetsRequest(){
+    QString payload = "getTargetsList";
+    this->system->getModulesManager()->handleTask(serverInteraction, payload_type::text, payload.toStdString());
+}
 
 
 
@@ -77,5 +88,22 @@ ConnectionMetaInfo MainWindow::reformat(wsr::connection_metainfo src){
 
     return temp;
 }
+
+WSRProperties MainWindow::reformat(wsr::ws_runner_properties src){
+    WSRProperties temp;
+    temp.access_logging_level = QString::number(src.access_logging_level);
+    temp.errors_logging_level = QString::number(src.errors_logging_level);
+    temp.myID = QString::fromStdString(src.myID);
+    return temp;
+}
+
+
+
+
+
+
+
+
+
 
 

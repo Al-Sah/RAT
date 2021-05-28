@@ -22,7 +22,7 @@ set(CORE_SOURCES
         impl/DataTransfer.cpp
         models/src/ParsedTextMessage.cpp
         models/src/TaskResult.cpp
-        models/src/Task.cpp
+        models/src/TaskInfo.cpp
         DataTransfer.h)
 
 
@@ -61,11 +61,15 @@ endif()
 configure_file(cmake_configuration.h.in cmake_configuration.h)
 
 if(NOT BOT_ENABLE AND NOT CONTROL_ENABLE)
-#[[    message(STATUS "Test building")
-    include_directories(websocket-lib ../modules)
-    add_executable(test ${CORE_SOURCES} main.cpp)
-    target_link_libraries (test ${CORE_EXTERNAL_LIBS} Qt5::Widgets)]]
+
 endif()
+
+message(STATUS "Test building")
+include_directories(websocket-lib ../modules)
+add_executable(test ${CORE_SOURCES} main.cpp)
+target_link_libraries (test ${CORE_EXTERNAL_LIBS} Qt5::Widgets)
+
+
 
 #add_library(zzz1 ${CORE_SOURCES})
 

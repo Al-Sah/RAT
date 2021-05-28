@@ -6,7 +6,9 @@
 
 
 struct WSRProperties{
-
+    QString myID = "undefined";
+    QString access_logging_level = "undefined";
+    QString errors_logging_level = "undefined";
 };
 
 struct ConnectionMetaInfo{

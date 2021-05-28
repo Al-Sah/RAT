@@ -10,4 +10,17 @@
 
 #include <functional>
 
+struct botResult{
+    std::string task_id;
+    bool isLast;
+};
+
+struct controlRequest{
+    std::string target_id;
+    std::string target_type;
+    std::string target_module;
+    std::string required_response;
+};
+
+
 #endif //CORE_MODULE_RESOURCES_H

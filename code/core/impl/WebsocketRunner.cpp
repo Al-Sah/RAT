@@ -5,6 +5,7 @@
 #include "../WebsocketRunner.h"
 #include <utility>
 
+
 #ifdef headers_includes
 #include "../CommandsManager.h"
 void WebsocketRunner::setCommandsManager(const std::weak_ptr<CommandsManager> &commandsManager) {
@@ -27,6 +28,8 @@ WebsocketRunner::~WebsocketRunner() {
 #ifdef BOT_ENABLE
 bool WebsocketRunner::setup_connection(const std::string &uri) {
 #else
+    #include <QMetaType>
+    Q_DECLARE_METATYPE(wsr::connection_metainfo)
     bool WebsocketRunner::setup_connection(const std::string &uri, const std::string &pswd) {
 #endif
 
@@ -67,10 +70,6 @@ bool WebsocketRunner::setup_connection(const std::string &uri) {
     client.connect(connection);
     this->metainfo.hdl = connection->get_handle();
 
-#ifdef CONTROL_ENABLE
-    connectionMetainfoUpdater(this->metainfo);
-#endif
-
     return true;
 }
 
@@ -104,21 +103,36 @@ void WebsocketRunner::on_close(const websocketpp::connection_hdl& hdl) {
     std::cout << "\nConnection closed. close_code [" << this->metainfo.closeStatusCode
               << "] status [" << this->metainfo.status << "] close_reason [" << this->metainfo.status_details << "]\n" << std::flush;
 
+#ifdef CONTROL_ENABLE
+    connectionMetainfoUpdater(this->metainfo);
+#endif
 #ifdef BOT_ENABLE
     if(this->metainfo.closeStatusCode != websocketpp::close::status::normal){
         sleep(5);
         this->setup_connection("ws://localhost:8080/bot");
     }
-
 #endif
+
 }
 
 void WebsocketRunner::on_open(const websocketpp::connection_hdl& hdl) {
-    this->metainfo.status = "Opened";
+    this->metainfo.status = "Connected";
+    this->metainfo.status_details = "No details";
     metainfo.max_transferring_size = this->properties.max_transferring_size;
 
+#ifdef BOT_ENABLE
+    this->metainfo.myID = client.get_con_from_hdl(hdl)->get_response_header("bot-id");
     std::cout << "\nEstablished new connection. max_message_size ["<< client.get_con_from_hdl(hdl)->get_max_message_size()
     << "] Bot-id: [" << client.get_con_from_hdl(hdl)->get_response().get_header("bot-id") << "]\n" << std::flush;
+#endif
+#ifdef CONTROL_ENABLE
+    this->metainfo.myID = client.get_con_from_hdl(hdl)->get_response_header("user-id");
+    connectionMetainfoUpdater(this->metainfo);
+    std::cout << "\nEstablished new connection. max_message_size ["<< client.get_con_from_hdl(hdl)->get_max_message_size()
+              << "] Bot-id: [" << client.get_con_from_hdl(hdl)->get_response().get_header("bot-id") << "]\n" << std::flush;
+#endif
+
+
 }
 
 void WebsocketRunner::on_message(const websocketpp::connection_hdl& hdl, const wsr::message_ptr& msg) {
@@ -131,7 +145,12 @@ void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
     this->metainfo.status = "Failed";
     this->metainfo.last_error_code = client.get_con_from_hdl(hdl)->get_ec();
     this->metainfo.last_error_reason = client.get_con_from_hdl(hdl)->get_ec().message();
+    this->metainfo.status_details = metainfo.last_error_code.message();
     std::cout << "failed to connect [" << metainfo.last_error_code.message() << "]" << std::endl;
+
+#ifdef CONTROL_ENABLE
+    connectionMetainfoUpdater(this->metainfo);
+#endif
 
 #ifdef BOT_ENABLE
     sleep(5);
@@ -154,6 +173,9 @@ WebsocketRunner::WebsocketRunner(wsr::ws_runner_properties properties) : propert
     metainfo.myID = this->properties.myID;
     this->module_id = "WebsocketRunner";
 
+#ifdef CONTROL_ENABLE
+    qRegisterMetaType <wsr::connection_metainfo>("wsr::connection_metainfo");
+#endif
     thread.reset(new websocketpp::lib::thread(&wsr::ws_client::run, &client));
 }
 
@@ -168,4 +190,8 @@ void WebsocketRunner::setWsRunnerPropertiesUpdater(
 void WebsocketRunner::setConnectionMetainfoUpdater(
         const std::function<void(wsr::connection_metainfo &)> &connectionMetainfoUpdater) {
     WebsocketRunner::connectionMetainfoUpdater = connectionMetainfoUpdater;
+}
+
+const wsr::ws_runner_properties &WebsocketRunner::getProperties() const {
+    return properties;
 }

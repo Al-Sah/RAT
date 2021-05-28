@@ -9,7 +9,7 @@
 System::System(void * ui){
 
     this->applicationContext = std::make_shared<ApplicationContext>(ui);
-    this->modulesManager  = std::make_shared<ModulesManager> (applicationContext->getModulesManagerProperties());
+    this->modulesManager  = std::make_shared<ModulesManager> (applicationContext->getModulesManagerProperties(), ui);
     this->commandsManager = std::make_shared<CommandsManager>(applicationContext->getCommandsManagerProperties());
     this->websocketRunner = std::make_shared<WebsocketRunner>(applicationContext->getWsRunnerProperties());
 
@@ -33,8 +33,8 @@ System::System(void * ui){
     this->task_executor = [this](std::string module, std::string task_id, std::shared_ptr<std::string> payload){
         return this->modulesManager->handleTask(module, task_id, payload);
     };
-    this->module_result_handler = [this](TaskResult message){
-        return this->commandsManager->register_result_message(message);
+    this->module_request_handler = [this](TaskResult message, ParsedTextMessage parsedMessage){
+        return this->commandsManager->register_result_message(message, parsedMessage);
     };
 
 #ifdef CONTROL_ENABLE
@@ -61,7 +61,7 @@ System::System(void * ui){
     this->commandsManager->setMessageSender(message_sender);
     this->commandsManager->setTaskExecutor(task_executor);
     this->websocketRunner->set_messages_register(message_register);
-    this->modulesManager->set_result_handler(module_result_handler);
+    this->modulesManager->set_result_handler(module_request_handler);
 
 #endif
 }

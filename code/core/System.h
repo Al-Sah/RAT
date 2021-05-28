@@ -20,7 +20,10 @@ private:
 
     std::function<bool(std::string)> message_sender;
     std::function<void(std::string)> message_register;
+
+    std::function<void(TaskResult,ParsedTextMessage)> module_request_handler;
     std::function<void(TaskResult)> module_result_handler;
+
     std::function<void(std::string, std::string, std::shared_ptr<std::string>)> task_executor;
 
     std::function<void(wsr::ws_runner_properties &)> wsRunnerPropertiesUpdater;

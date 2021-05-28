@@ -21,6 +21,6 @@ public:
 };
 
 //typedef Module* (*getInstance_t)();
-using getInstance_t = Module* (*)();
+using getInstance_t = Module* (*)(std::function<void(payload_type, void*, void*)> &callback, void* data);
 
 #endif //BASIC_MODULE_BOT_MODULE_H

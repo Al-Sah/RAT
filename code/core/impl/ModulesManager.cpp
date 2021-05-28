@@ -13,46 +13,124 @@ void ModulesManager::setCommandsManager(const std::weak_ptr<CommandsManager> &co
 }
 #define HANDLE_MODULE_RESPONSE(message)(commandsManager.lock()->handleResponseMessage(message))
 #else
-void ModulesManager::set_result_handler(std::function<void(TaskResult)> &result_handler) {
-    this->result_handler = result_handler;
+void ModulesManager::set_result_handler(std::function<void(TaskResult,ParsedTextMessage)> &result_handler) {
+    this->request_handler = result_handler;
 }
-#define HANDLE_MODULE_RESPONSE(message)(this->result_handler(message))
+#define HANDLE_MODULE_RESPONSE(task, parsedMessage)(this->request_handler(task, parsedMessage))
 #endif
-#define GET_INSTANCE_FUNCTION "_Z11getInstancev"
+#define GET_INSTANCE_FUNCTION "getInstance"
+//"_Z11getInstancev"
+
+
+std::string bool2str(bool b){
+    return b ? "1" : "0";
+}
+
+#include <sstream>
+#include <websocketpp/random/random_device.hpp>
+
+namespace uu_id {
+    static std::random_device              rd;
+    static std::mt19937                    gen(rd());
+    static std::uniform_int_distribution<> dis(0, 15);
+    static std::uniform_int_distribution<> dis2(8, 11);
+
+    std::string generate_uuid_v4() {
+        std::stringstream ss;
+        int i;
+        ss << std::hex;
+        for (i = 0; i < 8; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        for (i = 0; i < 4; i++) {
+            ss << dis(gen);
+        }
+        ss << "-4";
+        for (i = 0; i < 3; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        ss << dis2(gen);
+        for (i = 0; i < 3; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        for (i = 0; i < 12; i++) {
+            ss << dis(gen);
+        };
+        return ss.str();
+    }
+}
+
 
 
 void ModulesManager::handleTask(std::string &module, std::string & task_id, std::shared_ptr<std::string> & payload_p) {
     //std::cout<< "Executing task Module ["<< module <<"] " << " Task_id ["<< task_id <<"] Payload ["<< payload_p.operator*() <<"] !!!" << std::flush;
     std::string payload = *payload_p;
 
-    Module* module_ptr = findModule(module);
+    Module* module_ptr = _findModule(module);
     if(module_ptr == nullptr){
         std::string error = "target_module [" + module + "] not found";
-        //this->handleResult(request_id, error); //TODO
+        //this->handleModuleAction(request_id, error); //TODO
         return;
     }
 
-    std::function<void(payload_type, void*, bool)> callback = [this, task_id](payload_type result, void* result_payload, bool isLast){
-        this->handleResult(result, result_payload, task_id, isLast);
+#ifdef BOT_ENABLE
+    std::function<void(payload_type, void*, bool)> default_modules_callback = [this, task_id](payload_type result, void* result_payload, bool isLast){
+            botResult *info = new botResult;
+            info->task_id = task_id;
+            info->isLast = isLast;
+        this->handleModuleAction(result, result_payload, info);
     };
-
-    std::thread thread(&Module::executeTask, module_ptr, payload, payload_type::text, callback);
+    std::thread thread(&Module::executeTask, module_ptr, payload, payload_type::text, default_modules_callback);
     thread.detach();
+#else
+    std::thread thread(&Module::executeTask, module_ptr, payload, payload_type::text, nullptr);
+    thread.detach();
+#endif
 }
 
-void ModulesManager::handleResult(payload_type result, void *result_payload, std::string task_id, bool isLast) {
+void ModulesManager::handleModuleAction(payload_type result, void *result_payload, void* info) {
+    ParsedTextMessage parsedMessage;
     std::string payload;
     if(result == payload_type::text){
         payload = *(std::string*) result_payload;
     }
-    TaskResult message(task_id, payload, false, isLast);
-    HANDLE_MODULE_RESPONSE(message);
+
+#ifdef BOT_ENABLE
+    parsedMessage.setRequestId(result_info.task_id);
+    parsedMessage.setIsLast(bool2str(result_info.isLast));
+    TaskResult message(result_info.task_id, payload, result, result_info.isLast);
+#endif
+#ifdef CONTROL_ENABLE
+    controlRequest request_info = *(controlRequest*)info;
+    std::string uuid = uu_id::generate_uuid_v4();
+
+    parsedMessage.setModule(request_info.target_module);
+    parsedMessage.setTargetType(request_info.target_type);
+    parsedMessage.setTargetId(request_info.target_id);
+    parsedMessage.setResponseType(request_info.required_response);
+    parsedMessage.setRequestId(uuid);
+
+    TaskResult message(uuid, payload, result, true);
+#endif
+
+    HANDLE_MODULE_RESPONSE(message, parsedMessage);
 }
 
 
-ModulesManager::ModulesManager(const mm::modules_manager_properties &properties) : properties(properties) {
+ModulesManager::ModulesManager(const mm::modules_manager_properties &properties, void * ui) : properties(properties) {
     this->module_id = "ModulesManager";
     this->modules.push_back(this);
+
+    this->default_modules_callback = [this](payload_type pt, void* payload, void* data){
+        this->handleModuleAction(pt, payload, data);
+    };
+#ifdef CONTROL_ENABLE
+    this->ui = ui;
+    this->dataTransfer = new DataTransfer( (QObject*)ui);
+#endif
     this->loadExternalModules();
 }
 
@@ -63,7 +141,7 @@ void ModulesManager::loadExternalModules(){
     boost::filesystem::recursive_directory_iterator iter(targetDir), eod;
 
     BOOST_FOREACH(boost::filesystem::path const& i, std::make_pair(iter, eod)){
-        if (!is_regular_file(i)  ||   i.extension() != ".so"){
+        if (!is_regular_file(i) || i.extension() != ".so"){
             continue;
         }
 
@@ -73,15 +151,22 @@ void ModulesManager::loadExternalModules(){
         auto pluggableModule = (getInstance_t)dlsym(handle, GET_INSTANCE_FUNCTION);
 #endif
         if(pluggableModule != nullptr){
-            Module *mod = pluggableModule();
-            std::cout << "Registered new external module [" << mod->getId() << "]\n";
-            modules.push_back(mod);
+            registerModule(pluggableModule);
         }
     }
 }
 
-Module* ModulesManager::findModule(std::string& id) {
+Module* ModulesManager::_findModule(std::string& id) {
+    for(auto module_ptr : modules){
+        std::cout << module_ptr->getId();
+        if(module_ptr->getId() == id){
+            return module_ptr;
+        }
+    }
+    return nullptr;
+}
 
+Module *ModulesManager::findModule(std::string id) {
     for(auto module_ptr : modules){
         std::cout << module_ptr->getId();
         if(module_ptr->getId() == id){
@@ -95,7 +180,29 @@ void ModulesManager::executeTask(std::string payload, payload_type pt, std::func
 
 }
 
-void ModulesManager::registerModule(Module* module) {
+void ModulesManager::registerModule(getInstance_t func) {
+
+#ifdef BOT_ENABLE
+    Module *module = func(default_modules_callback, nullptr);
+    this->modules.push_back(module);
+#endif
+
+#ifdef CONTROL_ENABLE
+    Module *module = func(default_modules_callback, ui);
+    this->modules.push_back(module);
+#endif
+
+    // TODO if Mirror or just control, pass handleModuleAction
+}
+
+void ModulesManager::registerModule(Module *module) {
     this->modules.push_back(module);
 }
+
+void ModulesManager::handleTask(Module *module, payload_type pt, std::string payload) {
+    std::thread thread(&Module::executeTask, module, payload, pt, nullptr);
+    thread.detach();
+}
+
+
 

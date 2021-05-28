@@ -7,6 +7,6 @@
 #define STRINGIFY(val) STRINGIFY_(val)
 #include STRINGIFY(MODULE_FOLDER/MODULE_CLASS.h)
 
-Module * getInstance(){
-    return new MODULE_CLASS();
+extern "C" Module * getInstance(std::function<void(payload_type, void*, void*)> callback, void* data){
+    return new MODULE_CLASS(callback, data);
 }

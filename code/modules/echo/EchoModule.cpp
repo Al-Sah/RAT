@@ -5,7 +5,7 @@
 #include "EchoModule.h"
 
 
-EchoModule::EchoModule() {
+EchoModule::EchoModule(std::function<void(payload_type, void*, void*)> &callback, void* data) {
     this->module_id = "echo";
 }
 

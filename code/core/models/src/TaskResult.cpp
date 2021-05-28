@@ -4,15 +4,15 @@
 
 #include "../TaskResult.h"
 
-TaskResult::TaskResult(std::string &taskId, std::string &payload, bool isFile, bool isLast)
+TaskResult::TaskResult(std::string &taskId, std::string &payload, payload_type payloadType, bool isLast)
         : task_id(taskId),
           payload(payload),
-          isFile(isFile),
+          payloadType(payloadType),
           isLast(isLast) {}
 
-TaskResult::TaskResult(std::string &payload, bool isFile, bool isLast)
+TaskResult::TaskResult(std::string &payload, payload_type payloadType, bool isLast)
         : payload(payload),
-          isFile(isFile),
+          payloadType(payloadType),
           isLast(isLast) {}
 
 
@@ -25,7 +25,8 @@ const std::string &TaskResult::getPayload() const {
 bool TaskResult::getIsLast() const {
     return isLast;
 }
-bool TaskResult::getIsFile() const {
-    return isFile;
+
+payload_type TaskResult::getPayloadType() const {
+    return payloadType;
 }
 
