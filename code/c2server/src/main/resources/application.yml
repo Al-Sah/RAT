@@ -1,4 +1,5 @@
 
+
 message:
 
   delimiters:
@@ -24,3 +25,4 @@ message:
     control-side: "control"
     bot-side:     "bot"
     server-side:  "server"
+debug: true

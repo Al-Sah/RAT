@@ -54,11 +54,6 @@ find_package(Boost COMPONENTS thread filesystem REQUIRED)
 set(TS_FILES control_en_150.ts)
 
 
-add_library(zzz SHARED test_2.cpp)
-target_link_libraries(zzz PRIVATE Qt5::Widgets)
-
-
-
 add_executable(control
     main.cpp
     test.h
@@ -75,10 +70,27 @@ add_executable(control
     ${CORE_HEADERS}
 )
 
-add_compile_definitions(MODULE_CLASS=serverInteraction MODULE_FOLDER=../modules/control-side/server-interaction)
-add_library(server_interaction SHARED ../modules/control-side/server-interaction/serverInteraction.cpp ../modules/module.cpp)
+
+
+set(MODULE_SOURCES
+        ../modules/control-side/server-interaction/serverinteractiongroupbox.h
+        ../modules/control-side/server-interaction/serverinteractiongroupbox.cpp
+        ../modules/control-side/server-interaction/serverinteractiongroupbox.ui
+        ../modules/control-side/server-interaction/testmainwindow.cpp
+        ../modules/control-side/server-interaction/testmainwindow.ui
+        ../modules/control-side/server-interaction/testmainwindow.h
+        ../modules/control-side/server-interaction/serverInteraction.cpp
+        ../modules/control-side/server-interaction/ServerInteraction.h
+        ../modules/control-side/Module.h
+        ../modules/module.cpp)
+
+add_compile_definitions(MODULE_CLASS=ServerInteraction MODULE_FOLDER=../modules/control-side/server-interaction)
+
+add_library(server_interaction SHARED ${MODULE_SOURCES})
 target_link_libraries (server_interaction Qt5::Widgets)
 
 
-target_link_libraries(control PRIVATE Qt5::Widgets ${Boost_LIBRARIES} dl zzz)
+
+
+target_link_libraries(control PRIVATE Qt5::Widgets ${Boost_LIBRARIES} dl)
 qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})

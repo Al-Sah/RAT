@@ -99,9 +99,23 @@ public class MessagesBuilderImpl implements MessagesBuilder {
     public String generateBot2UserEnvelope(String botId, String module, String requestId, String packageType) {
         return Utils.lengthCheck(section(mConfig.keys.packageType, packageType) + bot2controlEnvelopeBase(botId, module, requestId));
     }
+
+    @Override
+    public String generateServer2UserEnvelope(String userId, String module, String requestId) {
+        return Utils.lengthCheck(
+                section(mConfig.keys.packageType, mConfig.packages.singleMessage) + server2controlEnvelopeBase(userId, module, requestId));
+    }
+
     private String bot2controlEnvelopeBase(String botId, String module, String requestId){
         return section(mConfig.keys.targetType, mConfig.targets.botSide) +
                 section(mConfig.keys.targetID, botId) +
+                section(mConfig.keys.targetModule, module) +
+                section(mConfig.keys.requestID, requestId);
+    }
+
+    private String server2controlEnvelopeBase(String userId, String module, String requestId){
+        return section(mConfig.keys.targetType, mConfig.targets.serverSide) +
+                section(mConfig.keys.targetID, userId) +
                 section(mConfig.keys.targetModule, module) +
                 section(mConfig.keys.requestID, requestId);
     }

@@ -18,7 +18,7 @@ set(CORE_SOURCES
         ../core/impl/ModulesManager.cpp
         ../core/models/src/ParsedTextMessage.cpp
         ../core/models/src/TaskResult.cpp
-        ../core/models/src/Task.cpp)
+        ../core/models/src/TaskInfo.cpp)
 
 add_executable(bot ${CORE_SOURCES} main.cpp)
 

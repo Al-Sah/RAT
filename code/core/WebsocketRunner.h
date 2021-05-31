@@ -38,7 +38,7 @@ public:
     ~WebsocketRunner();
 
 #ifdef BOT_ENABLE
-    bool setup_c onnection(const std::string &uri);
+    bool setup_connection(const std::string &uri);
 #else
     bool setup_connection(const std::string &uri, const std::string &pswd);
 #endif

@@ -8,7 +8,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->csd = new ConnectionSetupDialog();
     ui->setupUi(this);
     QString sModule = "serverInteraction";
-    serverInteraction = this->system->getModulesManager()->findModule(sModule.toStdString());
+    Module* res = this->system->getModulesManager()->findModule(sModule.toStdString());
+    serverInteraction = (UIModule*)res;
+
+    ui->serverTabGridLayout->addWidget(serverInteraction->getUI());
 
     connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(on_conection_button_clicked()));
     connect(ui->updateTargetsButton, SIGNAL(clicked(bool)), this, SLOT(updateTargetsRequest()));
@@ -72,6 +75,9 @@ void MainWindow::updateTargetsRequest(){
     this->system->getModulesManager()->handleTask(serverInteraction, payload_type::text, payload.toStdString());
 }
 
+void MainWindow::showModule(QString id){
+
+}
 
 
 ConnectionMetaInfo MainWindow::reformat(wsr::connection_metainfo src){

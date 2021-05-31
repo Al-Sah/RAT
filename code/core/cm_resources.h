@@ -46,6 +46,8 @@ namespace cm{
             std::string single_message = "single";
         };
 
+
+
     }
 
     struct commands_manager_properties{
@@ -53,7 +55,7 @@ namespace cm{
         command::delimiters delimiters;
         command::packages packages;
         command::keys keys;
-
+        Targets targets;
     };
 }
 

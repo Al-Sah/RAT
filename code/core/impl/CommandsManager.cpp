@@ -30,9 +30,9 @@
 #endif
 
 
-/*std::string bool2str(bool b){
+std::string cmBool2str(bool b){
     return b ? "1" : "0";
-}*/
+}
 
 std::string CommandsManager::generate_section(std::string key, std::string value) const{
     return properties.delimiters.section + key + properties.delimiters.value + value;
@@ -120,9 +120,11 @@ std::string CommandsManager::validate_parsed_message(ParsedTextMessage& message)
     std::string errors;
     if(message.getPackageType().empty() ||
         message.getModule().empty() ||
-        message.getRequestId().empty() ||
-        message.getResponseType().empty()){
+        message.getRequestId().empty()){
         errors.append("Empty parameters");
+    }
+    if(message.getTargetType() != properties.targets.server && message.getResponseType().empty()){
+        errors.append("Empty parameter ResponseType");
     }
     return errors;
 }
@@ -159,15 +161,18 @@ void CommandsManager::handleResponseMessage(TaskResult &message, ParsedTextMessa
 #ifdef BOT_ENABLE
     result = generate_section(properties.keys.package_type, properties.packages.single_message) +
              generate_section(properties.keys.request_id, message.getTaskId()) +
-             generate_section(properties.keys.is_last, bool2str(message.getIsLast()));
+             generate_section(properties.keys.is_last, cmBool2str(message.getIsLast()));
 #endif
+
 #ifdef CONTROL_ENABLE
     result = generate_section(properties.keys.package_type, properties.packages.single_message) +
              generate_section(properties.keys.target_type, parsedTextMessage.getTargetType()) +
              generate_section(properties.keys.target_id, parsedTextMessage.getTargetId()) +
              generate_section(properties.keys.target_module, parsedTextMessage.getModule()) +
-             generate_section(properties.keys.response_type, parsedTextMessage.getResponseType());
+             generate_section(properties.keys.response_type, parsedTextMessage.getResponseType()) +
+             generate_section(properties.keys.request_id, parsedTextMessage.getRequestId());
 #endif
+
     this->length_check(result);
     result.append(message.getPayload());
 

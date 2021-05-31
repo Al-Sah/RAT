@@ -7,6 +7,7 @@
 
 #include "../core/models/TaskResult.h"
 #include "../core/models/payload_type.h"
+#include "../core/models/Targets.h"
 
 #include <functional>
 
@@ -17,7 +18,7 @@ struct botResult{
 
 struct controlRequest{
     std::string target_id;
-    std::string target_type;
+    targets_enum target_type;
     std::string target_module;
     std::string required_response;
 };

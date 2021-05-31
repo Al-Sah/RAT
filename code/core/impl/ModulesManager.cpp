@@ -27,41 +27,41 @@ std::string bool2str(bool b){
 }
 
 #include <sstream>
-#include <websocketpp/random/random_device.hpp>
+#include <random>
 
-namespace uu_id {
-    static std::random_device              rd;
-    static std::mt19937                    gen(rd());
-    static std::uniform_int_distribution<> dis(0, 15);
-    static std::uniform_int_distribution<> dis2(8, 11);
+std::string generate_uuid_v4() {
+    std::random_device              rd;
+    std::mt19937                    gen(rd());
+    std::uniform_int_distribution<> dis(0, 15);
+    std::uniform_int_distribution<> dis2(8, 11);
 
-    std::string generate_uuid_v4() {
-        std::stringstream ss;
-        int i;
-        ss << std::hex;
-        for (i = 0; i < 8; i++) {
-            ss << dis(gen);
-        }
-        ss << "-";
-        for (i = 0; i < 4; i++) {
-            ss << dis(gen);
-        }
-        ss << "-4";
-        for (i = 0; i < 3; i++) {
-            ss << dis(gen);
-        }
-        ss << "-";
-        ss << dis2(gen);
-        for (i = 0; i < 3; i++) {
-            ss << dis(gen);
-        }
-        ss << "-";
-        for (i = 0; i < 12; i++) {
-            ss << dis(gen);
-        };
-        return ss.str();
+    std::stringstream ss;
+    int i;
+    ss << std::hex;
+    for (i = 0; i < 8; i++) {
+        ss << dis(gen);
     }
+    ss << "-";
+    for (i = 0; i < 4; i++) {
+        ss << dis(gen);
+    }
+    ss << "-4";
+    for (i = 0; i < 3; i++) {
+        ss << dis(gen);
+    }
+    ss << "-";
+    ss << dis2(gen);
+    for (i = 0; i < 3; i++) {
+        ss << dis(gen);
+    }
+    ss << "-";
+    for (i = 0; i < 12; i++) {
+        ss << dis(gen);
+    };
+    std::cout << "UUID:  " << ss.str() << std::endl;
+    return ss.str();
 }
+
 
 
 
@@ -99,16 +99,30 @@ void ModulesManager::handleModuleAction(payload_type result, void *result_payloa
     }
 
 #ifdef BOT_ENABLE
-    parsedMessage.setRequestId(result_info.task_id);
-    parsedMessage.setIsLast(bool2str(result_info.isLast));
-    TaskResult message(result_info.task_id, payload, result, result_info.isLast);
+    botResult request_info = *(botResult*)info;
+    parsedMessage.setRequestId(request_info.task_id);
+    parsedMessage.setIsLast(bool2str(request_info.isLast));
+    TaskResult message(request_info.task_id, payload, result, request_info.isLast);
 #endif
 #ifdef CONTROL_ENABLE
     controlRequest request_info = *(controlRequest*)info;
-    std::string uuid = uu_id::generate_uuid_v4();
+    std::string uuid(generate_uuid_v4());
+    std::cout << std::endl << uuid << std::endl;
 
     parsedMessage.setModule(request_info.target_module);
-    parsedMessage.setTargetType(request_info.target_type);
+
+    switch (request_info.target_type) {
+        case targets_enum::bot:
+            parsedMessage.setTargetType(properties.targets.bot);
+            break;
+        case targets_enum::server:
+            parsedMessage.setTargetType(properties.targets.server);
+            break;
+        case targets_enum::control:
+            parsedMessage.setTargetType(properties.targets.control);
+            break;
+    }
+
     parsedMessage.setTargetId(request_info.target_id);
     parsedMessage.setResponseType(request_info.required_response);
     parsedMessage.setRequestId(uuid);

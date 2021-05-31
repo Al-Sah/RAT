@@ -25,7 +25,7 @@
 namespace mm{
 
     struct modules_manager_properties{
-
+        Targets targets;
     };
 
 }

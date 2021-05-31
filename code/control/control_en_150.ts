@@ -159,6 +159,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="main_window.ui" line="495"/>
+        <source>Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="cmake-build-debug/control_autogen/include/ui_main_window.h" line="164"/>
         <source>sdfsdfsdfsdfsdfsd</source>
         <translation type="unfinished"></translation>

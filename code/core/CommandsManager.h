@@ -45,7 +45,7 @@ private:
     [[nodiscard]] std::string generate_section(std::string key, std::string value) const;
 
     // Inbox messages processing
-    static std::string validate_parsed_message(ParsedTextMessage& message); // TODO move to utils
+    std::string validate_parsed_message(ParsedTextMessage& message); // TODO move to utils
     std::string keyCheck(ParsedTextMessage *message, std::string &key, std::string &value) const;
     ParsedTextMessage* parseMessage(const std::string& src, std::string& errors);
 

@@ -7,6 +7,7 @@
 #include "../core/System.h"
 #include "info_blocks.h"
 #include "ConnectionSetupDialog.h"
+#include "../modules/control-side/Module.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,8 +28,7 @@ private:
     WSRProperties wsrProperties;
 
 
-
-    Module* serverInteraction;
+    UIModule* serverInteraction;
 
     void setup_connection(QString url, QString pawd);
     ConnectionMetaInfo reformat(wsr::connection_metainfo connectionMetainfo);
@@ -42,6 +42,8 @@ public slots:
     void updateCommandsManagerPropertiesUI(cm::commands_manager_properties commandsManagerProperties);
     void updateModulesManagerPropertiesUI(mm::modules_manager_properties modulesManagerProperties);
     void updateTargetsRequest();
+
+    void showModule(QString id);
 
 
 public:

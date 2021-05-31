@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="general_tab">
      <attribute name="title">
@@ -295,10 +295,10 @@
      <widget class="QGroupBox" name="groupBox_3">
       <property name="geometry">
        <rect>
-        <x>280</x>
+        <x>0</x>
         <y>0</y>
-        <width>511</width>
-        <height>511</height>
+        <width>541</width>
+        <height>781</height>
        </rect>
       </property>
       <property name="title">
@@ -488,6 +488,22 @@
         </widget>
        </widget>
       </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Page</string>
+     </attribute>
+     <widget class="QWidget" name="gridLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>801</width>
+        <height>531</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="serverTabGridLayout"/>
      </widget>
     </widget>
    </widget>
