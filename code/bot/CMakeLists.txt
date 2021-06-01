@@ -20,6 +20,8 @@ set(CORE_SOURCES
         ../core/models/src/TaskResult.cpp
         ../core/models/src/TaskInfo.cpp)
 
+
+
 add_executable(bot ${CORE_SOURCES} main.cpp)
 
 #add_subdirectory("../modules") FIXME

@@ -17,6 +17,7 @@ private:
     QWidget* target;
     QWidget* moduleWindow;
     std::function<void(payload_type, void*, void*)> callback;
+    QString activeTargetID;
 
     TargetInfo parseTarget(std::string& line);
     QList<QString> parseTargetModules(std::string temp);
@@ -26,17 +27,18 @@ private:
 public:
     ServerInteraction(std::function<void(payload_type, void*, void*)> &callback, void* data);
     void getTargetsList();
-    void executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
-    QWidget* getUI() override;
+    void executeTask(std::string task,std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
+    QWidget* getUI(QString targetId) override;
 
 public slots:
     void do_targets_update();
     void showTargetModule(QListWidgetItem *);
+    void setActiveTerget(QString id);
 
 signals:
     void on_targets_update();
     void sendTargetsToUI(QList<TargetInfo> botsList, QList<TargetInfo> usersList);
-    void showModule(QString);
+    void showModule(QString moduleId, QString targetID);
 
 
 };

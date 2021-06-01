@@ -9,5 +9,7 @@ public interface ServerEndpoint {
 
     void executeCommand(Sender sender, WebSocketSession session, Message<?> message);
 
+    void getModules(WebSocketSession botSession);
+
     enum Sender{ BOT, CONTROL }
 }

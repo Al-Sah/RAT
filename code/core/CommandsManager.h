@@ -56,7 +56,7 @@ private:
 public:
     explicit CommandsManager(cm::commands_manager_properties properties);
     virtual ~CommandsManager();
-    void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
+    void executeTask(std::string task, std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     void register_inbox_message(std::string& payload);
     void register_result_message(TaskResult &task, ParsedTextMessage &parsedMessage);

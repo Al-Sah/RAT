@@ -145,6 +145,11 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
 
 
     @Override
+    public ServerEndpoint getServerEndpoint() {
+        return serverEndpoint;
+    }
+
+    @Override
     public void handleBotTextMessage(WebSocketSession session, TextMessage toParse) {
         StringBuffer errors = new StringBuffer();
         Message<String> message = messagesBuilder.parseMessage(toParse, errors);
@@ -159,6 +164,10 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
             return;
         }
         message.setTargetModule(association.getTargetModule());
+        if(association.getSenderSession().equals("sErvEr")){
+            serverEndpoint.executeCommand(ServerEndpoint.Sender.BOT, session, message);
+            return;
+        }
         WebSocketSession target = findTarget(message, mConfig.targets.controlSide, association.getSenderSession(), mConfig.targets.botSide, errors);
         if (errors.length() != 0) {
             log.error(errors.toString());

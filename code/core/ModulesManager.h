@@ -24,8 +24,8 @@ private:
 
     std::function<void(payload_type, void*, void*)> default_modules_callback;
 
-    //std::map<std::string, Module*> modules;
-    std::list<Module*> modules;
+    std::map<std::string, Module*> modules;
+    //std::list<Module*> modules;
     void loadExternalModules();
 
     Module* _findModule(std::string& id);
@@ -38,7 +38,7 @@ private:
 public:
     Module* findModule(std::string id);
     explicit ModulesManager(const mm::modules_manager_properties &properties, void * ui);
-    void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
+    void executeTask(std::string task, std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
     void handleTask(std::string& module, std::string& task_id, std::shared_ptr<std::string>& payload);
 
@@ -49,6 +49,7 @@ public:
     void registerModule(Module* module);
     void registerModule(getInstance_t);
 
+    std::string getModules();
 
 
 

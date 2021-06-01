@@ -9,7 +9,9 @@ TestMainWindow::TestMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui
     this->test = new ServerInteraction(callback, this);
 
     ui->setupUi(this);
-    ui->gridLayout->addWidget(test->getUI());
+    ui->gridLayout->addWidget(test->getUI("zzzz"));
+
+    test->getUI("zFDSzz")->show();
 
 }
 

@@ -20,8 +20,9 @@ set(MODULE_SOURCES
         testmainwindow.h
         serverInteraction.cpp
         ServerInteraction.h
-		../../module.cpp
-		../../Module.h
+        ../../module.cpp
+        ../../Module.h
+        ../../module_resources.cpp
         ../Module.h)
 
 add_compile_definitions(MODULE_CLASS=ServerInteraction MODULE_FOLDER=control-side/server-interaction)

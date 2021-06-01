@@ -9,10 +9,8 @@ ServerInteractionGroupBox::ServerInteractionGroupBox(ServerInteraction *si_ptr, 
 
     connect(ui->updateTargetsButton, SIGNAL(clicked(bool)), si_ptr, SLOT(do_targets_update()));
     connect(ui->botsList, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(showTargetInfo(QListWidgetItem *)));
-
-    connect(ui->targetModulesList, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-            si_ptr, SLOT(showTargetModule(QListWidgetItem *)));
-
+    connect(ui->targetModulesList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), si_ptr, SLOT(showTargetModule(QListWidgetItem *)));
+    connect(this, SIGNAL(setActiveTerget(QString)), si_ptr, SLOT(setActiveTerget(QString)));
 }
 
 
@@ -27,8 +25,6 @@ void ServerInteractionGroupBox::handleUpdatedTargets(QList<TargetInfo> bots, QLi
 
     this->ui->botsList->clear();
 
-
-
     for(auto bot: bots){
         this->ui->botsList->addItem(new QListWidgetItem(bot.id));
     }
@@ -39,8 +35,7 @@ void ServerInteractionGroupBox::handleUpdatedTargets(QList<TargetInfo> bots, QLi
 }
 
 void ServerInteractionGroupBox::showTargetInfo(QListWidgetItem *item){
-    item->text();
-
+    emit setActiveTerget(item->text());
     for(auto bot: bots){
         if(bot.id == item->text()){
            updateTargetUI(bot);
@@ -52,6 +47,7 @@ void ServerInteractionGroupBox::showTargetInfo(QListWidgetItem *item){
 void ServerInteractionGroupBox::updateTargetUI(TargetInfo& info){
     ui->targetModulesList->clear();
 
+    ui->label_adress_val->setText(info.characteristics["adress"]);
     ui->label_targetId_val->setText(info.id);
 
     for(auto module: info.modules){

@@ -1,6 +1,7 @@
 #include "main_window.h"
 #include "./ui_main_window.h"
 #include <QPushButton>
+#include <QMessageBox>
 #include "test.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
@@ -11,7 +12,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     Module* res = this->system->getModulesManager()->findModule(sModule.toStdString());
     serverInteraction = (UIModule*)res;
 
-    ui->serverTabGridLayout->addWidget(serverInteraction->getUI());
+    if(serverInteraction == nullptr){
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","Failed to load serverInteraction module!");
+        messageBox.setFixedSize(500,200);
+        messageBox.show();
+    } else{
+        ui->serverTabGridLayout->addWidget(serverInteraction->getUI(""));
+    }
 
     connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(on_conection_button_clicked()));
     connect(ui->updateTargetsButton, SIGNAL(clicked(bool)), this, SLOT(updateTargetsRequest()));
@@ -62,21 +70,24 @@ void MainWindow::updateConnectionMetainfoUI(wsr::connection_metainfo connectionM
 
 }
 
-void MainWindow::updateCommandsManagerPropertiesUI(cm::commands_manager_properties commandsManagerProperties){
-
-}
-
-void MainWindow::updateModulesManagerPropertiesUI(mm::modules_manager_properties modulesManagerProperties){
-
-}
+void MainWindow::updateCommandsManagerPropertiesUI(cm::commands_manager_properties commandsManagerProperties){}
+void MainWindow::updateModulesManagerPropertiesUI(mm::modules_manager_properties modulesManagerProperties){}
 
 void MainWindow::updateTargetsRequest(){
     QString payload = "getTargetsList";
     this->system->getModulesManager()->handleTask(serverInteraction, payload_type::text, payload.toStdString());
 }
 
-void MainWindow::showModule(QString id){
-
+void MainWindow::showModule(QString moduleID, QString targetID){
+    UIModule* module = (UIModule*)this->system->getModulesManager()->findModule("echo");
+    if(module == nullptr){
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","An error has occured !");
+        messageBox.setFixedSize(500,200);
+        messageBox.show();
+    } else{
+         module->getUI(targetID)->show();
+    }
 }
 
 

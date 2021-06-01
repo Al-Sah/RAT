@@ -48,6 +48,7 @@ public class BotWebSocketHandler extends AbstractWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session){
         botWSSessionService.addSession(session);
+        messagesCoordinator.getServerEndpoint().getModules(session);
     }
 
     @Override

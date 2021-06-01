@@ -16,7 +16,7 @@ public:
     virtual std::string getId() const{
         return this->module_id;
     }
-    virtual void executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) = 0;
+    virtual void executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) = 0;
 
 };
 

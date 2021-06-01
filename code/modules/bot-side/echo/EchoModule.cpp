@@ -14,7 +14,7 @@ std::string EchoModule::getId() const {
 }
 
 
-void EchoModule::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) {
+void EchoModule::executeTask(std::string z, std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) {
     payload.append("(Echo)");
     callback(payload_type::text, &payload, true);
 }

@@ -179,7 +179,7 @@ WebsocketRunner::WebsocketRunner(wsr::ws_runner_properties properties) : propert
     thread.reset(new websocketpp::lib::thread(&wsr::ws_client::run, &client));
 }
 
-void WebsocketRunner::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
+void WebsocketRunner::executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
 }
 
 void WebsocketRunner::setWsRunnerPropertiesUpdater(

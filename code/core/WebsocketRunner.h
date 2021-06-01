@@ -33,7 +33,7 @@ private:
 public:
 
 
-    void executeTask(std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
+    void executeTask(std::string task, std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
     explicit WebsocketRunner(wsr::ws_runner_properties properties);
     ~WebsocketRunner();
 

@@ -34,6 +34,9 @@ public slots:
     void handleUpdatedTargets(QList<TargetInfo>, QList<TargetInfo>);
     void showTargetInfo(QListWidgetItem *);
 
+signals:
+    void setActiveTerget(QString id);
+
 
 };
 

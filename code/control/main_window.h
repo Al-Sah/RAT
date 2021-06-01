@@ -43,7 +43,7 @@ public slots:
     void updateModulesManagerPropertiesUI(mm::modules_manager_properties modulesManagerProperties);
     void updateTargetsRequest();
 
-    void showModule(QString id);
+    void showModule(QString moduleID, QString targetID);
 
 
 public:

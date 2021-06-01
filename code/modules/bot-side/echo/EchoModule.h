@@ -6,7 +6,7 @@
 #define BASIC_MODULE_ECHOMODULE_H
 
 
-#include "../Module.h"
+#include "../../Module.h"
 
 
 class EchoModule : public Module {
@@ -16,7 +16,7 @@ public:
 
     [[nodiscard]] std::string getId() const override;
     //TaskResult executeTask(std::string payload) override;
-    void executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
+    void executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
 };
 
 

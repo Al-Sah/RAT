@@ -12,7 +12,7 @@
 class UIModule : public QObject, public Module{
     Q_OBJECT
 public:
-    virtual QWidget* getUI() = 0;
+    virtual QWidget* getUI(QString targetId) = 0;
 };
 
 

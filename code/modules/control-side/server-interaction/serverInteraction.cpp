@@ -23,7 +23,7 @@ ServerInteraction::ServerInteraction(std::function<void(payload_type, void*, voi
     connect(this, SIGNAL(sendTargetsToUI(QList<TargetInfo>, QList<TargetInfo>)),
         moduleWindow, SLOT(handleUpdatedTargets(QList<TargetInfo>, QList<TargetInfo>)));
 
-    connect(this, SIGNAL(showModule(QString)), target, SLOT(showModule(QString)));
+    connect(this, SIGNAL(showModule(QString, QString)), target, SLOT(showModule(QString, QString)));
 
     this->module_id = "serverInteraction";
 
@@ -32,7 +32,7 @@ ServerInteraction::ServerInteraction(std::function<void(payload_type, void*, voi
 }
 
 
-QWidget* ServerInteraction::getUI(){
+QWidget* ServerInteraction::getUI(QString targetId){
     return this->moduleWindow;
 }
 
@@ -42,13 +42,14 @@ void ServerInteraction::getTargetsList() {
     info.target_type = targets_enum::server;
     info.target_module = "serverInteraction";
     info.target_id = "";
+    info.task_id = generate_uuid_v4();
     
     std::string payload("getTargetsList");
     callback(text, &payload, &info);
 }
 
 void ServerInteraction::executeTask(
-        std::string payload, payload_type pt,
+        std::string task, std::string payload, payload_type pt,
         std::function<void(payload_type, void*, bool)> callback) {
 
     if(payload == "getTargetsList"){
@@ -64,8 +65,14 @@ void ServerInteraction::do_targets_update() {
 }
 
 void ServerInteraction::showTargetModule(QListWidgetItem * info){
-    emit showModule(info->text());
+    emit showModule(info->text(), this->activeTargetID);
 }
+
+void ServerInteraction::setActiveTerget(QString id){
+    this->activeTargetID = id;
+}
+
+
 
 void ServerInteraction::handleReceivedTargetsList(std::string& payload) {
 
@@ -111,7 +118,7 @@ TargetInfo ServerInteraction::parseTarget(std::string& line) {
 
     pos1 = line.find('[');
     pos2 = line.find(']');
-    temp = line.substr(pos1, pos2 - pos1 -1);
+    temp = line.substr(pos1+1, pos2 - pos1);
     info.characteristics = parseTargetCharacteristics(temp);
 
     return info;
@@ -126,7 +133,9 @@ QList<QString> ServerInteraction::parseTargetModules(std::string temp) {
     while ((pos = temp.find(delimiter)) != std::string::npos) {
         token = temp.substr(0, pos);
         QString qTemp = QString::fromStdString(token);
-        result.push_back(qTemp);
+        if(!qTemp.isEmpty()){
+            result.push_back(qTemp);
+        }
         qDebug() << qTemp;
         temp.erase(0, pos + delimiter.length());
     }
@@ -134,5 +143,8 @@ QList<QString> ServerInteraction::parseTargetModules(std::string temp) {
 }
 
 QMap<QString, QString> ServerInteraction::parseTargetCharacteristics(std::string temp) {
-    return QMap<QString, QString>();
+    QMap<QString, QString> res;
+    temp = temp.substr(0,temp.find(" "));
+    res.insert("adress", QString::fromStdString(temp));
+    return res;
 }

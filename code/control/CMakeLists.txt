@@ -71,7 +71,6 @@ add_executable(control
 )
 
 
-
 set(MODULE_SOURCES
         ../modules/control-side/server-interaction/serverinteractiongroupbox.h
         ../modules/control-side/server-interaction/serverinteractiongroupbox.cpp
@@ -82,14 +81,31 @@ set(MODULE_SOURCES
         ../modules/control-side/server-interaction/serverInteraction.cpp
         ../modules/control-side/server-interaction/ServerInteraction.h
         ../modules/control-side/Module.h
-        ../modules/module.cpp)
+        ../modules/module.cpp
+        ../modules/module_resources.cpp)
 
 add_compile_definitions(MODULE_CLASS=ServerInteraction MODULE_FOLDER=../modules/control-side/server-interaction)
 
 add_library(server_interaction SHARED ${MODULE_SOURCES})
 target_link_libraries (server_interaction Qt5::Widgets)
 
+#[[
 
+set(ECHO_MODULE_SOURCES
+    ../modules/control-side/echo/echo.cpp
+    ../modules/control-side/echo/echodialogue.cpp
+    ../modules/control-side/echo/echodialogue.h
+    ../modules/control-side/echo/echodialogue.ui
+    ../modules/control-side/echo/resources.h
+    ../modules/control-side/echo/Echo.h
+    ../modules/control-side/Module.h
+    ../modules/module.cpp)
+
+add_library(echo SHARED ${ECHO_MODULE_SOURCES})
+add_compile_definitions(MODULE_CLASS=Echo MODULE_FOLDER=../modules/control-side/echo)
+
+target_link_libraries(echo Qt5::Widgets)
+]]
 
 
 target_link_libraries(control PRIVATE Qt5::Widgets ${Boost_LIBRARIES} dl)

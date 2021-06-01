@@ -23,7 +23,7 @@ const mm::modules_manager_properties &ApplicationContext::getModulesManagerPrope
     return modules_manager_properties;
 }
 
-void ApplicationContext::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
+void ApplicationContext::executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
 
 }
 void ApplicationContext::setWsRunnerProperties(const wsr::ws_runner_properties &wsRunnerProperties) {

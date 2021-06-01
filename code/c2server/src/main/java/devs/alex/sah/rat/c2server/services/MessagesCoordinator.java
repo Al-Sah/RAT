@@ -7,6 +7,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 public interface MessagesCoordinator {
 
+     ServerEndpoint getServerEndpoint();
+
      void handleBotTextMessage(WebSocketSession session, TextMessage message);
      void handleBotBinaryMessage(WebSocketSession session, BinaryMessage message);
 

@@ -123,7 +123,7 @@ std::string CommandsManager::validate_parsed_message(ParsedTextMessage& message)
         message.getRequestId().empty()){
         errors.append("Empty parameters");
     }
-    if(message.getTargetType() != properties.targets.server && message.getResponseType().empty()){
+    if(message.getTargetType() == properties.targets.control && message.getResponseType().empty()){
         errors.append("Empty parameter ResponseType");
     }
     return errors;
@@ -236,7 +236,7 @@ void CommandsManager::register_result_message(TaskResult &task, ParsedTextMessag
     resultMessagesMutex.unlock();
 }
 
-void CommandsManager::executeTask(std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
+void CommandsManager::executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void *, bool)> callback) {
 
 }
 
