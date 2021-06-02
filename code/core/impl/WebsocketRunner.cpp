@@ -13,10 +13,10 @@ void WebsocketRunner::setCommandsManager(const std::weak_ptr<CommandsManager> &c
 }
 #define REGISTER_MESSAGE(message)(commandsManager.lock()->add_new_message(message))
 #else
-void WebsocketRunner::set_messages_register(std::function<void(std::string)>& function) {
+void WebsocketRunner::set_messages_register(std::function<void(std::string, payload_type)>& function) {
     this->register_message = function;
 }
-#define REGISTER_MESSAGE(message)(this->register_message(message))
+#define REGISTER_MESSAGE(message, payload_type)(this->register_message(message, payload_type))
 #endif
 
 
@@ -136,9 +136,14 @@ void WebsocketRunner::on_open(const websocketpp::connection_hdl& hdl) {
 }
 
 void WebsocketRunner::on_message(const websocketpp::connection_hdl& hdl, const wsr::message_ptr& msg) {
-    std::cout<< "\nNew message: " << msg->get_payload() << std::endl;
+    std::cout<< "\nNew message\n";
     std::string message = msg->get_payload();
-    REGISTER_MESSAGE(message);
+    if(msg->get_opcode() == websocketpp::frame::opcode::value::BINARY){
+        REGISTER_MESSAGE(message, payload_type::binary_data);
+    } else{
+        REGISTER_MESSAGE(message, payload_type::text);
+    }
+
 }
 
 void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
@@ -158,9 +163,13 @@ void WebsocketRunner::on_fail(const websocketpp::connection_hdl &hdl) {
 #endif
 }
 
-bool WebsocketRunner::send_message(const std::string &message) {
+bool WebsocketRunner::send_message(const std::string &message, payload_type pt) {
     wsr::error_code ec;
-    client.send(metainfo.hdl, message, websocketpp::frame::opcode::value::TEXT, ec);
+    if(pt == payload_type::text){
+        client.send(metainfo.hdl, message, websocketpp::frame::opcode::value::TEXT, ec);
+    } else{
+        client.send(metainfo.hdl, message, websocketpp::frame::opcode::value::BINARY, ec);
+    }
     return !handleError(ec);
 }
 
@@ -171,7 +180,7 @@ WebsocketRunner::WebsocketRunner(wsr::ws_runner_properties properties) : propert
     client.start_perpetual();
 
     metainfo.myID = this->properties.myID;
-    this->module_id = "WebsocketRunner";
+    this->module_id = TARGET"WebsocketRunner";
 
 #ifdef CONTROL_ENABLE
     qRegisterMetaType <wsr::connection_metainfo>("wsr::connection_metainfo");

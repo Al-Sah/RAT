@@ -35,7 +35,7 @@ private:
     std::list<TaskInfo> tasks;
 
 
-    std::queue<std::string> inboxMessages; // WebSocketRunner put message here
+    std::queue<std::pair<std::string, payload_type>> inboxMessages; // WebSocketRunner put message here
 
     std::queue<std::pair<TaskResult,ParsedTextMessage>> resultMessages; // ModuleManager put message here
     // TODO resultMessages as TaskResult and ParsedMessage
@@ -50,7 +50,7 @@ private:
     ParsedTextMessage* parseMessage(const std::string& src, std::string& errors);
 
 
-    void handleRequestMessage(const std::string& message);
+    void handleRequestMessage(const std::string& message, payload_type pt);
     void handleResponseMessage(TaskResult &message, ParsedTextMessage &parsedTextMessage);
 
 public:
@@ -58,7 +58,7 @@ public:
     virtual ~CommandsManager();
     void executeTask(std::string task, std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
-    void register_inbox_message(std::string& payload);
+    void register_inbox_message(std::string& payload, payload_type pt);
     void register_result_message(TaskResult &task, ParsedTextMessage &parsedMessage);
 
     void runResultMessagesHandler(); // endless
@@ -77,10 +77,10 @@ public:
     void setModulesManager(const std::weak_ptr<ModulesManager> &modulesManager);
     void setWebsocketRunner(const std::weak_ptr<WebsocketRunner> &websocketRunner);
 #else
-    std::function<bool(std::string)> send_message_function;
-    std::function<void(std::string, std::string, std::shared_ptr<std::string>)> task_executor;
-    void setMessageSender(std::function<bool(std::string)>& sender);
-    void setTaskExecutor(std::function<void(std::string, std::string, std::shared_ptr<std::string>)>& task_executor);
+    std::function<bool(std::string, payload_type)> send_message_function;
+    std::function<void(std::string, std::string, std::string, payload_type pt)> task_executor;
+    void setMessageSender(std::function<bool(std::string, payload_type)>& sender);
+    void setTaskExecutor(std::function<void(std::string, std::string, std::string, payload_type pt)>& task_executor);
 #endif
 };
 

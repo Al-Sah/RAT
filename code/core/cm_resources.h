@@ -11,6 +11,7 @@
 #include "models/TaskResult.h"
 #include <../modules/Module.h>
 
+#include <fstream>
 #include <iostream>
 #include <thread>
 #include <mutex>

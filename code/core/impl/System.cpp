@@ -23,15 +23,15 @@ System::System(void * ui){
     modulesManager->setCommandsManager(commandsManager);
 #else
 
-    this->message_sender = [this](const std::string& message){
-        return this->websocketRunner->send_message(message);
+    this->message_sender = [this](const std::string& message, payload_type pt){
+        return this->websocketRunner->send_message(message, pt);
     };
-    this->message_register = [this](std::string message){
-        return this->commandsManager->register_inbox_message(message);
+    this->message_register = [this](std::string message, payload_type pt){
+        return this->commandsManager->register_inbox_message(message, pt);
     };
 
-    this->task_executor = [this](std::string module, std::string task_id, std::shared_ptr<std::string> payload){
-        return this->modulesManager->handleTask(module, task_id, payload);
+    this->task_executor = [this](std::string module, std::string task_id, std::string payload, payload_type pt){
+        return this->modulesManager->handleTask(module, task_id, payload, pt);
     };
     this->module_request_handler = [this](TaskResult message, ParsedTextMessage parsedMessage){
         return this->commandsManager->register_result_message(message, parsedMessage);

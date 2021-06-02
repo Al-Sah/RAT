@@ -40,7 +40,7 @@ public:
     explicit ModulesManager(const mm::modules_manager_properties &properties, void * ui);
     void executeTask(std::string task, std::string payload, payload_type pt, std::function<void (payload_type, void *, bool)> callback) override;
 
-    void handleTask(std::string& module, std::string& task_id, std::shared_ptr<std::string>& payload);
+    void handleTask(std::string& module, std::string& task_id, std::string& payload, payload_type pt);
 
     void handleTask(Module* module, payload_type pt, std::string payload);
     //void handleModuleAction(payload_type result, void* result_payload, std::string task_id, bool isLast);

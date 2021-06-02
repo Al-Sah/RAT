@@ -24,10 +24,8 @@ std::string bool2str(bool b){
     return b ? "1" : "0";
 }
 
-void ModulesManager::handleTask(std::string &module, std::string & task_id, std::shared_ptr<std::string> & payload_p) {
+void ModulesManager::handleTask(std::string &module, std::string & task_id, std::string& payload, payload_type pt) {
     //std::cout<< "Executing task Module ["<< module <<"] " << " Task_id ["<< task_id <<"] Payload ["<< payload_p.operator*() <<"] !!!" << std::flush;
-    std::string payload = *payload_p;
-    std::string task = task_id;
 
     Module* module_ptr = _findModule(module);
     if(module_ptr == nullptr){
@@ -43,10 +41,10 @@ void ModulesManager::handleTask(std::string &module, std::string & task_id, std:
             info->isLast = isLast;
         this->handleModuleAction(result, result_payload, info);
     };
-    std::thread thread(&Module::executeTask, module_ptr, task_id, payload, payload_type::text, callback);
+    std::thread thread(&Module::executeTask, module_ptr, task_id, payload, pt, callback);
     thread.detach();
 #else
-    std::thread thread(&Module::executeTask, module_ptr, task, payload, payload_type::text, nullptr);
+    std::thread thread(&Module::executeTask, module_ptr, task_id, payload, pt, nullptr);
     thread.detach();
 #endif
 }
@@ -54,9 +52,8 @@ void ModulesManager::handleTask(std::string &module, std::string & task_id, std:
 void ModulesManager::handleModuleAction(payload_type result, void *result_payload, void* info) {
     ParsedTextMessage parsedMessage;
     std::string payload;
-    if(result == payload_type::text){
-        payload = *(std::string*) result_payload;
-    }
+    payload = *(std::string*) result_payload;
+
 
 #ifdef BOT_ENABLE
     botResult request_info = *(botResult*)info;
@@ -93,7 +90,7 @@ void ModulesManager::handleModuleAction(payload_type result, void *result_payloa
 
 
 ModulesManager::ModulesManager(const mm::modules_manager_properties &properties, void * ui) : properties(properties) {
-    this->module_id = "ModulesManager";
+    this->module_id = TARGET"ModulesManager";
     this->modules.emplace(module_id,this);
 
     this->default_modules_callback = [this](payload_type pt, void* payload, void* data){

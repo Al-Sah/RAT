@@ -21,6 +21,14 @@ set(CORE_SOURCES
         ../core/models/src/TaskInfo.cpp)
 
 
+add_compile_definitions(MODULE_CLASS=EchoModule MODULE_FOLDER=../modules/bot-side/echo)
+
+add_library(echo SHARED
+        ../modules/bot-side/echo/EchoModule.cpp
+        ../modules/module.cpp
+        ../modules/module_resources.cpp)
+
+
 
 add_executable(bot ${CORE_SOURCES} main.cpp)
 

@@ -18,13 +18,13 @@ private:
     std::shared_ptr<ModulesManager> modulesManager;
     std::shared_ptr<WebsocketRunner> websocketRunner;
 
-    std::function<bool(std::string)> message_sender;
-    std::function<void(std::string)> message_register;
+    std::function<bool(std::string,payload_type)> message_sender;
+    std::function<void(std::string,payload_type)> message_register;
 
     std::function<void(TaskResult,ParsedTextMessage)> module_request_handler;
     std::function<void(TaskResult)> module_result_handler;
 
-    std::function<void(std::string, std::string, std::shared_ptr<std::string>)> task_executor;
+    std::function<void(std::string, std::string, std::string, payload_type)> task_executor;
 
     std::function<void(wsr::ws_runner_properties &)> wsRunnerPropertiesUpdater;
     std::function<void(wsr::connection_metainfo &)> connectionMetainfoUpdater;

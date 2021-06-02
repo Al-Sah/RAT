@@ -6,6 +6,7 @@ EchoDialogue::EchoDialogue(Echo *echo_ptr, QWidget *parent) : QDialog(parent), u
     ui->setupUi(this);
 
     connect(ui->SendMesagge, SIGNAL(clicked(bool)), this, SLOT(sendMessageButtonClicked()));
+    connect(ui->SendFile, SIGNAL(clicked(bool)), this, SLOT(sendFileButtonClicked()));
     //connect(echo_ptr, SIGNAL(openTarget(QString)), this, SLOT(openBot(QString)));
     connect(ui->botsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showBot(QListWidgetItem *)));
 
@@ -25,9 +26,6 @@ void EchoDialogue::handleMessage(QString botId, QString text){
     QString newText = oldText.append("----New Message ---- ");
     QDateTime time = QDateTime::currentDateTime();
     newText = newText.append(time.toString()).append('\n').append(text).append('\n');
-    //newText = newText.append('\n');
-    //newText = newText.append(text);
-    //newText = newText.append('\n');
     botInfo inf;
     inf.messages = newText;
     QMap<QString, botInfo>::iterator i = botsDataList.find(botId);
@@ -36,10 +34,27 @@ void EchoDialogue::handleMessage(QString botId, QString text){
     ui->textBrowser->setText(inf.messages);
 }
 
+void EchoDialogue::handleFile(QString botId, QString filename){
+    QString oldText = botsDataList.value(botId).messages;
+    QString newText = oldText.append("----New File ---- ");
+    QDateTime time = QDateTime::currentDateTime();
+    newText = newText.append(time.toString()).append('\n').append(filename).append('\n');
+    botInfo inf;
+    inf.messages = newText;
+    QMap<QString, botInfo>::iterator i = botsDataList.find(botId);
+    botsDataList.insert(i, botId, inf);
+    ui->textBrowser->setText(inf.messages);
+}
+
 
 void EchoDialogue::sendMessageButtonClicked(){
      emit sendUIMessage(activeBotId, ui->plainTextEdit->toPlainText());
 }
+
+void EchoDialogue::sendFileButtonClicked(){
+    emit sendUIFile(activeBotId, "/home/al_sah/Desktop/rat_test.jpg");
+}
+
 
 void EchoDialogue::showBot(QListWidgetItem *item){
     ui->label_id_val->setText(item->text());

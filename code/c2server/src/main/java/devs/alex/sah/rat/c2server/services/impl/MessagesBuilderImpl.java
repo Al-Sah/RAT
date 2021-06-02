@@ -9,6 +9,7 @@ import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.TextMessage;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -133,7 +134,6 @@ public class MessagesBuilderImpl implements MessagesBuilder {
     }
 
 
-
     @Override
     public Message<String> parseMessage(TextMessage message, StringBuffer errors){
         try {
@@ -154,10 +154,24 @@ public class MessagesBuilderImpl implements MessagesBuilder {
     }
 
     @Override
-    public Message<ByteBuffer> parseMessage(BinaryMessage message, StringBuffer errors){
-        short envelopeSize = ByteBuffer.wrap(new byte[]{message.getPayload().array()[0], message.getPayload().array()[1]}).getShort();
-        //short envelopeSize = (short) (b1<<8 | b2);
-        return null;
+    public Message<ByteBuffer> parseMessage(BinaryMessage srcMessage, StringBuffer errors){
+        String message = StandardCharsets.UTF_8.decode(srcMessage.getPayload()).toString();
+
+        try {
+            int pos = message.indexOf(mConfig.delimiters.section);
+            int envelopeSize = Integer.parseInt(message.substring(0, pos));
+            String envelope = message.substring(pos + 1, envelopeSize);
+
+            byte[] binaryData = new byte[srcMessage.getPayload().limit() - envelopeSize];
+            srcMessage.getPayload().get(envelopeSize, binaryData);
+            Message<ByteBuffer> parsedMessage = new Message<>(ByteBuffer.wrap(binaryData));
+            parseEnvelope(parsedMessage, envelope, errors);
+            return parsedMessage;
+
+        } catch (RuntimeException exception){
+            errors.append("Failed to extract envelope");
+            return null;
+        }
     }
 
     @Override

@@ -20,10 +20,11 @@ public:
 
 public slots:
     void sendMessage(QString botId, QString text);
-
+    void sendFile(QString botId, QString path);
 
 signals:
     void onMessage(QString botId, QString text);
+    void onFile(QString botId, QString text);
     void openTarget(QString botId);
 };
 

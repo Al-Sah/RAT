@@ -38,7 +38,7 @@ public class ServerEndpointImpl implements ServerEndpoint {
     public void getModules(WebSocketSession botSession){
         String requestId =  UUID.randomUUID().toString();
         String envelope = messagesBuilder.generateServer2botEnvelope(
-                botSession.getId(), "ModulesManager", requestId);
+                botSession.getId(), "botModulesManager", requestId);
 
         botSession.getAttributes().put(requestId, new AssociativePair("sErvEr", requestId, "mm"));
         try {

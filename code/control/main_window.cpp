@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     this->system = new System(this);
     this->csd = new ConnectionSetupDialog();
     ui->setupUi(this);
+
+    ui->tabWidget->setCurrentIndex(0);
     QString sModule = "serverInteraction";
     Module* res = this->system->getModulesManager()->findModule(sModule.toStdString());
     serverInteraction = (UIModule*)res;
@@ -22,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     }
 
     connect(ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(on_conection_button_clicked()));
-    connect(ui->updateTargetsButton, SIGNAL(clicked(bool)), this, SLOT(updateTargetsRequest()));
 
 
     updateWsRunnerPropertiesUI(system->getWebsocketRunner()->getProperties());
@@ -73,16 +74,12 @@ void MainWindow::updateConnectionMetainfoUI(wsr::connection_metainfo connectionM
 void MainWindow::updateCommandsManagerPropertiesUI(cm::commands_manager_properties commandsManagerProperties){}
 void MainWindow::updateModulesManagerPropertiesUI(mm::modules_manager_properties modulesManagerProperties){}
 
-void MainWindow::updateTargetsRequest(){
-    QString payload = "getTargetsList";
-    this->system->getModulesManager()->handleTask(serverInteraction, payload_type::text, payload.toStdString());
-}
 
 void MainWindow::showModule(QString moduleID, QString targetID){
-    UIModule* module = (UIModule*)this->system->getModulesManager()->findModule("echo");
+    UIModule* module = (UIModule*)this->system->getModulesManager()->findModule(moduleID.toStdString());
     if(module == nullptr){
         QMessageBox messageBox;
-        messageBox.critical(0,"Error","An error has occured !");
+        messageBox.critical(0,"Error","Failed to find mirror !");
         messageBox.setFixedSize(500,200);
         messageBox.show();
     } else{

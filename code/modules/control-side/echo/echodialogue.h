@@ -25,7 +25,9 @@ private:
 
 public slots:
     void handleMessage(QString botId, QString text);
+    void handleFile(QString botId, QString filename);
     void sendMessageButtonClicked();
+    void sendFileButtonClicked();
 
     void openBot(QString botId);
     void showBot(QListWidgetItem *item);
@@ -33,6 +35,7 @@ public slots:
 signals:
 
     void sendUIMessage(QString botId, QString text);
+    void sendUIFile(QString botId, QString path);
 };
 
 #endif // ECHODIALOGUE_H

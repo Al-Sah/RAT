@@ -44,7 +44,7 @@ public:
 #endif
 
 
-    bool send_message(const std::string &message);
+    bool send_message(const std::string &message, payload_type pt);
     bool close_connection(wsr::close_status_code code = websocketpp::close::status::normal, const std::string& reason = "Normal closing");
     const wsr::connection_metainfo &getConnectionMetainfo() const;
     const wsr::ws_runner_properties &getProperties() const;
@@ -57,11 +57,11 @@ public:
 #else
 
 private:
-    std::function<void(std::string)> register_message;
+    std::function<void(std::string, payload_type)> register_message;
     std::function<void(wsr::ws_runner_properties &)> wsRunnerPropertiesUpdater;
     std::function<void(wsr::connection_metainfo &)> connectionMetainfoUpdater;
 public:
-    void set_messages_register(std::function<void(std::string)> &function);
+    void set_messages_register(std::function<void(std::string, payload_type)> &function);
     void setWsRunnerPropertiesUpdater(const std::function<void(wsr::ws_runner_properties &)> &wsRunnerPropertiesUpdater);
     void setConnectionMetainfoUpdater(const std::function<void(wsr::connection_metainfo &)> &connectionMetainfoUpdater);
 #endif

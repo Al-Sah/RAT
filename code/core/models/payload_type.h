@@ -7,7 +7,8 @@
 
 enum payload_type{
     text = 1,
-    file_hath = 2
+    file_hath = 2,
+    binary_data = 3
 };
 
 

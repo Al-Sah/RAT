@@ -64,10 +64,10 @@ if(NOT BOT_ENABLE AND NOT CONTROL_ENABLE)
 
 endif()
 
-#[[message(STATUS "Test building")
+message(STATUS "Test building")
 include_directories(websocket-lib ../modules)
 add_executable(test ${CORE_SOURCES} main.cpp)
-target_link_libraries (test ${CORE_EXTERNAL_LIBS} Qt5::Widgets)]]
+target_link_libraries (test ${CORE_EXTERNAL_LIBS} Qt5::Widgets)
 
 
 

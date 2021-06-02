@@ -5,7 +5,7 @@
 #include "../ApplicationContext.h"
 
 ApplicationContext::ApplicationContext(void * ui){
-    this->module_id = "ApplicationContext";
+    this->module_id = TARGET"ApplicationContext";
 #ifdef CONTROL_ENABLE
     this->dataTransfer = new DataTransfer( (QObject*)ui);
 #endif
