@@ -41,7 +41,6 @@ public slots:
     void updateConnectionMetainfoUI(wsr::connection_metainfo connectionMetainfo);
     void updateCommandsManagerPropertiesUI(cm::commands_manager_properties commandsManagerProperties);
     void updateModulesManagerPropertiesUI(mm::modules_manager_properties modulesManagerProperties);
-    void updateTargetsRequest();
 
     void showModule(QString moduleID, QString targetID);
 
