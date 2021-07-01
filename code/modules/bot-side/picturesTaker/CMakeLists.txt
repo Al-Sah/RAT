@@ -8,3 +8,7 @@ add_compile_definitions(MODULE_CLASS=PicturesTaker MODULE_FOLDER=bot-side/pictur
 add_library(picturesTaker SHARED PicturesTaker.cpp ../../module.cpp)
 
 #add_executable(testPicturesTaker PicturesTaker.cpp ../../module.cpp main.cpp)
+
+function(get_pictures_taker PATH)
+    install(TARGETS picturesTaker LIBRARY DESTINATION ${PATH})
+endfunction()

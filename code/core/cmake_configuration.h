@@ -1,7 +1,3 @@
 /* #undef HEADERS_INCLUDES_ENABLE */
-
-/*#define BOT_ENABLE
-#define TARGET "bot"*/
-
+/* #undef BOT_ENABLE */
 #define CONTROL_ENABLE
-#define TARGET "control"

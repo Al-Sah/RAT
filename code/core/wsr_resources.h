@@ -11,7 +11,6 @@
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
 
-#include <../modules/Module.h>
 #include "configuration.h"
 
 namespace wsr{
@@ -43,7 +42,7 @@ namespace wsr{
 
     struct ws_runner_properties{
 
-        size_t max_transferring_size = 524288;
+        size_t max_transferring_size = 8388608;
         std::string myID = "NEW";
         std::string uris[2] = {"ws://localhost:8080/bot", "ws://localhost:8888/bot"};
 

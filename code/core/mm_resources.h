@@ -5,10 +5,9 @@
 #ifndef CORE_MM_RESOURCES_H
 #define CORE_MM_RESOURCES_H
 
+#include "configuration.h"
 #include "models/TaskResult.h"
 #include "models/payload_type.h"
-#include <../modules/Module.h>
-#include "configuration.h"
 
 #include <iostream>
 #include <string>

@@ -9,7 +9,6 @@
 #include "models/ParsedTextMessage.h"
 #include "models/TaskInfo.h"
 #include "models/TaskResult.h"
-#include <../modules/Module.h>
 
 #include <fstream>
 #include <iostream>

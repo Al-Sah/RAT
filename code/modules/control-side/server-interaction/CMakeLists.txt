@@ -27,8 +27,8 @@ set(MODULE_SOURCES
 
 add_compile_definitions(MODULE_CLASS=ServerInteraction MODULE_FOLDER=control-side/server-interaction)
 
-#add_library(server_interaction SHARED ${MODULE_SOURCES})
-add_executable(server_interaction_ ${MODULE_SOURCES} main.cpp)
+add_library(server_interaction SHARED ${MODULE_SOURCES})
+#add_executable(server_interaction_ ${MODULE_SOURCES} main.cpp)
 
-#target_link_libraries (server_interaction  Qt5::Widgets)
-target_link_libraries (server_interaction_  Qt5::Widgets)
+target_link_libraries (server_interaction  Qt5::Widgets)
+#target_link_libraries (server_interaction_  Qt5::Widgets)
