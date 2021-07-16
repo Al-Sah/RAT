@@ -185,12 +185,13 @@ void ModulesManager::handleTask(Module *module, payload_type pt, std::string pay
 
 std::string ModulesManager::getModules() {
     std::string res = "botModules ";
-    for(auto module: modules){
+    for(const auto& module: modules){
         res = res.append(module.first);
         res = res.append(" ");
     }
     return res;
 }
 
+ModulesManager::~ModulesManager() {
 
-
+}

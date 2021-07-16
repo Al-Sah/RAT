@@ -37,6 +37,10 @@ System::System(void * ui){
         return this->commandsManager->register_result_message(message, parsedMessage);
     };
 
+    this->max_message_size_getter = [this](){
+        return this->websocketRunner->getProperties().max_transferring_size;
+    };
+
 #ifdef CONTROL_ENABLE
 /*    this->commandsManagerPropertiesUpdater = [this](auto properties){
         this->applicationContext->updateCommandsManagerProperties(properties);
@@ -59,6 +63,7 @@ System::System(void * ui){
 #endif
 
     this->commandsManager->setMessageSender(message_sender);
+    this->commandsManager->setMessageSizeGetter(max_message_size_getter);
     this->commandsManager->setTaskExecutor(task_executor);
     this->websocketRunner->set_messages_register(message_register);
     this->modulesManager->set_result_handler(module_request_handler);
@@ -80,4 +85,8 @@ const std::shared_ptr<ModulesManager> &System::getModulesManager() const {
 
 const std::shared_ptr<WebsocketRunner> &System::getWebsocketRunner() const {
     return websocketRunner;
+}
+
+System::~System(){
+    this->commandsManager->stop_work();
 }

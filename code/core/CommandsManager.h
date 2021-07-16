@@ -28,7 +28,7 @@ private:
     /// map <request_id, payload>     temporary payload storage ( Delete on task executing)
     std::map<std::string, std::shared_ptr<std::string>> inboxTextMessagesBuffer;
     /// request_id, payload_part      Ready to send payload
-    std::map<std::string, std::map<int, std::shared_ptr<std::string>>> outboxTextMessagesBuffer;
+    std::map<std::string, std::map<int, std::string>> outboxMessagesBuffer;
 
 
     /// Tasks which are executing by modules (delete TaskInfo on last target_module response)
@@ -79,8 +79,10 @@ public:
 #else
     std::function<bool(std::string, payload_type)> send_message_function;
     std::function<void(std::string, std::string, std::string, payload_type pt)> task_executor;
+    std::function<int()> get_max_message_size;
     void setMessageSender(std::function<bool(std::string, payload_type)>& sender);
     void setTaskExecutor(std::function<void(std::string, std::string, std::string, payload_type pt)>& task_executor);
+    void setMessageSizeGetter(std::function<int()> getter);
 #endif
 };
 

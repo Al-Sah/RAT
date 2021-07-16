@@ -50,7 +50,7 @@ public:
     void registerModule(getInstance_t);
 
     std::string getModules();
-
+    virtual ~ModulesManager();
 
 
 #ifdef headers_includes

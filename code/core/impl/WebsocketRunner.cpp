@@ -21,6 +21,7 @@ void WebsocketRunner::set_messages_register(std::function<void(std::string, payl
 
 
 WebsocketRunner::~WebsocketRunner() {
+    close_connection();
     client.stop_perpetual();
     thread->join();
 }

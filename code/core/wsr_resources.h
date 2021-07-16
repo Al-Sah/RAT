@@ -42,7 +42,7 @@ namespace wsr{
 
     struct ws_runner_properties{
 
-        size_t max_transferring_size = 8388608;
+        size_t max_transferring_size = 131072;
         std::string myID = "NEW";
         std::string uris[2] = {"ws://localhost:8080/bot", "ws://localhost:8888/bot"};
 

@@ -20,6 +20,7 @@ private:
 
     std::function<bool(std::string,payload_type)> message_sender;
     std::function<void(std::string,payload_type)> message_register;
+    std::function<int()> max_message_size_getter;
 
     std::function<void(TaskResult,ParsedTextMessage)> module_request_handler;
     std::function<void(TaskResult)> module_result_handler;
@@ -40,6 +41,7 @@ public:
 
 
     System(void * ui = nullptr);
+    ~System();
 };
 
 
