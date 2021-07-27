@@ -4,7 +4,7 @@
 
 TestMainWindow::TestMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::TestMainWindow){
 
-    std::function<void(payload_type, void*, void*)> callback = [](payload_type, void*, void*){};
+    std::function<void(PayloadType, void*, void*)> callback = [](PayloadType, void*, void*){};
 
     this->test = new PicturesTaker(callback, this);
 
@@ -37,5 +37,5 @@ void TestMainWindow::reciveMessage(){
          res = "zzzzzzz target echo message";
     }
 
-    this->test->executeTask("", res.toStdString(), payload_type::text, nullptr);
+    this->test->executeTask("", res.toStdString(), PayloadType::text, nullptr);
 }

@@ -73,21 +73,16 @@ public class MessagesCoordinatorImpl implements MessagesCoordinator {
 
     private String handleBotFirstPackage(Message<?> message, WebSocketSession session, String originalRequest, StringBuffer errors) {
 
-        if (message.getTargetType().equals(mConfig.targets.botSide)) {
-            if (session.getAttributes().put(CONTINUATION + message.getRequestID(),
-                    messagesBuilder.generateBot2UserEnvelope(message.getTargetID(), message.getTargetModule(), originalRequest, mConfig.packages.continuation)) != null) {
-                errors.append("Key [").append(CONTINUATION).append(message.getRequestID()).append("] exists\n");
-            }
-            if (session.getAttributes().put(LAST_PART + message.getRequestID(),
-                    messagesBuilder.generateBot2UserEnvelope(message.getTargetID(), message.getTargetModule(), originalRequest, mConfig.packages.lastPart)) != null) {
-                errors.append("Key [").append(LAST_PART).append(message.getRequestID()).append("] exists\n");
-            }
-            return messagesBuilder.generateBot2UserFirstEnvelope(message.getTargetID(), message.getTargetModule(),
-                    originalRequest, message.getFullMessageSize(), message.getIsLast());
-        } else {
-            errors.append("Undefined Target");
-            return "";
+        if (session.getAttributes().put(CONTINUATION + message.getRequestID(),
+                messagesBuilder.generateBot2UserEnvelope(message.getTargetID(), message.getTargetModule(), originalRequest, mConfig.packages.continuation)) != null) {
+            errors.append("Key [").append(CONTINUATION).append(message.getRequestID()).append("] exists\n");
         }
+        if (session.getAttributes().put(LAST_PART + message.getRequestID(),
+                messagesBuilder.generateBot2UserEnvelope(message.getTargetID(), message.getTargetModule(), originalRequest, mConfig.packages.lastPart)) != null) {
+            errors.append("Key [").append(LAST_PART).append(message.getRequestID()).append("] exists\n");
+        }
+        return messagesBuilder.generateBot2UserFirstEnvelope(message.getTargetID(), message.getTargetModule(),
+                originalRequest, message.getFullMessageSize(), message.getIsLast());
     }
 
     private String handleUserSingleMessage(Message<?> message, String request) {

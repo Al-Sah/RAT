@@ -3,13 +3,13 @@
 #include <fstream>
 
 
-PicturesTaker::PicturesTaker(std::function<void(payload_type, void*, void*)> &callback, void* data){
+PicturesTaker::PicturesTaker(std::function<void(PayloadType, void*, void*)> &callback, void* data){
 
     this->callback = callback;
     this->target = (QWidget*)data;
 
     this->moduleWindow = new PicturesTakerDialogue(this, target);
-    this->module_id = "picturesTaker";
+    this->moduleId = "picturesTaker";
 
     connect(this, SIGNAL(openTarget(QString)), moduleWindow, SLOT(openBot(QString)));
     connect(this, SIGNAL(onResult(QString, QString, QString )), moduleWindow, SLOT(handleFile(QString, QString, QString)));
@@ -17,7 +17,7 @@ PicturesTaker::PicturesTaker(std::function<void(payload_type, void*, void*)> &ca
     connect(moduleWindow, SIGNAL(getPicture(QString, QString)), this, SLOT(sendRequest(QString, QString)));
 }
 
-void PicturesTaker::executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback){
+void PicturesTaker::executeTask(std::string task, std::string payload, PayloadType pt, std::function<void(PayloadType, void*, bool)> callback){
 
 
     std::string path = "/tmp/pt_res" + task;
@@ -28,7 +28,7 @@ void PicturesTaker::executeTask(std::string task, std::string payload, payload_t
         path+=".png";
     }
 
-    if(pt == payload_type::binary_data){
+    if(pt == PayloadType::binaryData){
     std::ofstream file(path);
         if (file.is_open()){
             file << payload.substr(payload.find(' ')+1);
@@ -53,13 +53,13 @@ void PicturesTaker::sendRequest(QString botId, QString text){
     std::string stdBotId = botId.toStdString();
     std::pair res = std::make_pair(stdBotId, payload);
 
-    info.target_type = targets_enum::bot;
+    info.target_type = Targets::bot;
     info.target_module = "picturesTaker";
     info.target_id = stdBotId;
     info.required_response = "one";
     info.task_id = task;
 
     tasks.insert(tasks.begin(), std::make_pair(task, res));
-    callback(payload_type::text, &payload, &info);
+    callback(PayloadType::text, &payload, &info);
 }
 

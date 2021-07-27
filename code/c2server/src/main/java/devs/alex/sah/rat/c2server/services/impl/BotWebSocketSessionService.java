@@ -22,8 +22,8 @@ public class BotWebSocketSessionService implements WebSocketSessionService {
     @Override
     public void addSession(WebSocketSession session) {
         //ConcurrentWebSocketSessionDecorator z = new ConcurrentWebSocketSessionDecorator(session, 1000, 524288);
-        session.setTextMessageSizeLimit(524288);
-        session.setBinaryMessageSizeLimit(524288);
+        session.setTextMessageSizeLimit(131072);
+        session.setBinaryMessageSizeLimit(131072);
         activeBotsSessions.put((String)session.getAttributes().get("botId"), session);
         log.info("Max text message size {}", session.getTextMessageSizeLimit());
         log.info("Max  bin message size {}", session.getBinaryMessageSizeLimit());

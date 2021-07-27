@@ -13,7 +13,7 @@
 Q_DECLARE_METATYPE(TargetInfo)
 Q_DECLARE_METATYPE(QList<TargetInfo>)
 
-ServerInteraction::ServerInteraction(std::function<void(payload_type, void*, void*)> &callback, void* data) {
+ServerInteraction::ServerInteraction(std::function<void(PayloadType, void*, void*)> &callback, void* data) {
 
     this->callback = callback;
     this->target = (QWidget*)data;
@@ -25,7 +25,7 @@ ServerInteraction::ServerInteraction(std::function<void(payload_type, void*, voi
 
     connect(this, SIGNAL(showModule(QString, QString)), target, SLOT(showModule(QString, QString)));
 
-    this->module_id = "serverInteraction";
+    this->moduleId = "serverInteraction";
 
     qRegisterMetaType <TargetInfo>("TargetInfo");
     qRegisterMetaType <QList<TargetInfo>>("QList<TargetInfo>");
@@ -39,7 +39,7 @@ QWidget* ServerInteraction::getUI(QString targetId){
 void ServerInteraction::getTargetsList() {
 
     controlRequest info;
-    info.target_type = targets_enum::server;
+    info.target_type = Targets::server;
     info.target_module = "serverInteraction";
     info.target_id = "";
     info.task_id = generate_uuid_v4();
@@ -49,8 +49,8 @@ void ServerInteraction::getTargetsList() {
 }
 
 void ServerInteraction::executeTask(
-        std::string task, std::string payload, payload_type pt,
-        std::function<void(payload_type, void*, bool)> callback) {
+        std::string task, std::string payload, PayloadType pt,
+        std::function<void(PayloadType, void*, bool)> callback) {
 
     if(payload == "getTargetsList"){
         getTargetsList();

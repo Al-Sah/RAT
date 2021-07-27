@@ -5,7 +5,7 @@
 #ifndef SERVER_INTERACTION_SERVERINTERACTION_H
 #define SERVER_INTERACTION_SERVERINTERACTION_H
 
-#include "../Module.h"
+#include "../../UIModule.h"
 #include "serverinteractiongroupbox.h"
 #include "recourses.h"
 #include <QObject>
@@ -16,7 +16,7 @@ class ServerInteraction : public UIModule{
 private:
     QWidget* target;
     QWidget* moduleWindow;
-    std::function<void(payload_type, void*, void*)> callback;
+    std::function<void(PayloadType, void*, void*)> callback;
     QString activeTargetID;
 
     TargetInfo parseTarget(std::string& line);
@@ -25,9 +25,9 @@ private:
     void handleReceivedTargetsList(std::string& payload);
 
 public:
-    ServerInteraction(std::function<void(payload_type, void*, void*)> &callback, void* data);
+    ServerInteraction(std::function<void(PayloadType, void*, void*)> &callback, void* data);
     void getTargetsList();
-    void executeTask(std::string task,std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
+    void executeTask(std::string task,std::string payload, PayloadType pt, std::function<void(PayloadType, void*, bool)> callback) override;
     QWidget* getUI(QString targetId) override;
 
 public slots:

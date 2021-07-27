@@ -20,10 +20,10 @@ set(ECHO_MODULE_SOURCES
 
     resources.h
     Echo.h
-    ../../module.cpp
-    ../../module_resources.cpp
+        ../../Module.cpp
+        ../../GlobalResources.cpp
     ../../Module.h
-    ../Module.h)
+        ../../UIModule.h)
 
 set(ECHO_MODULE_SOURCES_TEST
     ${ECHO_MODULE_SOURCES}

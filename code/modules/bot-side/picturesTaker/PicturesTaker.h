@@ -6,16 +6,15 @@
 #define BASIC_MODULE_PICTURES_TAKER_H
 
 
-#include "../../Module.h"
+#include "../../TaskExecutor.h"
 
 
-class PicturesTaker : public Module {
+class PicturesTaker : public TaskExecutor{
 
 public:
-    PicturesTaker(std::function<void(payload_type, void*, void*)> &callback, void* data);
+    PicturesTaker(std::function<void(PayloadType, void*, void*)> &callback, void* data);
 
-    [[nodiscard]] std::string getId() const override;
-    void executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
+    void executeTask(std::string task, std::string payload, PayloadType pt, std::function<void(PayloadType, void*, bool)> callback) override;
 };
 
 

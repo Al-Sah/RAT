@@ -2,25 +2,32 @@
 // Created by al_sah on 01.04.21.
 //
 
-#ifndef BASIC_MODULE_BOT_MODULE_H
-#define BASIC_MODULE_BOT_MODULE_H
+#ifndef RAT_BASIC_MODULE
+#define RAT_BASIC_MODULE
 
-#include "module_resources.h"
+#include <iostream>
+#include "GlobalResources.h"
 
 class Module {
 protected:
-    std::string module_id;
-
+    std::string moduleId;
+    std::string version;
 public:
 
-    virtual std::string getId() const{
-        return this->module_id;
+    std::string getModuleId() const{
+        return this->moduleId;
     }
-    virtual void executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) = 0;
+    std::string getVersion() const {
+        return this->version;
+    }
 
+    Module(std::string& moduleId, std::string& version){
+        this->moduleId = moduleId;
+        this->version = version;
+    }
+    Module() = default;
 };
 
-//typedef Module* (*getInstance_t)();
-using getInstance_t = Module* (*)(std::function<void(payload_type, void*, void*)> &callback, void* data);
+using getModuleInstance = Module* (*)(std::function<void(PayloadType, void*, void*)> &callback, void* data);
 
-#endif //BASIC_MODULE_BOT_MODULE_H
+#endif //RAT_BASIC_MODULE

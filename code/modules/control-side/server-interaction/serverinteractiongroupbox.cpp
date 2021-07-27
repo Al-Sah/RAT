@@ -15,7 +15,9 @@ ServerInteractionGroupBox::ServerInteractionGroupBox(ServerInteraction *si_ptr, 
 
 
 ServerInteractionGroupBox::~ServerInteractionGroupBox(){
-    delete ui;
+    if(ui != nullptr){
+        delete ui;
+    }
 }
 
 

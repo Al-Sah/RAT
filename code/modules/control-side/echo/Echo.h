@@ -1,7 +1,7 @@
 #ifndef ECHO_H
 #define ECHO_H
 
-#include "../Module.h"
+#include "../../UIModule.h"
 #include <QObject>
 
 
@@ -10,13 +10,14 @@ class Echo: public UIModule{
 private:
     QWidget* target;
     QWidget* moduleWindow;
-    std::function<void(payload_type, void*, void*)> callback;
-    std::list<std::string> tasks;
+    std::function<void(PayloadType, void*, void*)> callback;
+    std::map<std::string,std::string> tasks;
 
 public:
-    Echo(std::function<void(payload_type, void*, void*)> &callback, void* data);
-    void executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
+    Echo(std::function<void(PayloadType, void*, void*)> &callback, void* data);
+    void executeTask(std::string task, std::string payload, PayloadType pt, std::function<void(PayloadType, void*, bool)> callback) override;
     QWidget* getUI(QString targetId) override;
+
 
 public slots:
     void sendMessage(QString botId, QString text);

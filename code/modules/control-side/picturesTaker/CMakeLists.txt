@@ -21,10 +21,10 @@ set(PT_MODULE_SOURCES
 
     resources.h
     PicturesTaker.h
-    ../../module.cpp
-    ../../module_resources.cpp
+        ../../Module.cpp
+        ../../GlobalResources.cpp
     ../../Module.h
-    ../Module.h)
+        ../../UIModule.h)
 
 set(PT_MODULE_SOURCES_TEST
 

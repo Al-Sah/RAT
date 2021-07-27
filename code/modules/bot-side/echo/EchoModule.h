@@ -2,22 +2,17 @@
 // Created by al_sah on 04.04.21.
 //
 
-#ifndef BASIC_MODULE_ECHOMODULE_H
-#define BASIC_MODULE_ECHOMODULE_H
+#ifndef ECHO_MODULE_BOT_SIDE
+#define ECHO_MODULE_BOT_SIDE
 
+#include "../../TaskExecutor.h"
 
-#include "../../Module.h"
-
-
-class EchoModule : public Module {
+class EchoModule : public TaskExecutor {
 
 public:
-    EchoModule(std::function<void(payload_type, void*, void*)> &callback, void* data);
-
-    [[nodiscard]] std::string getId() const override;
-    //TaskResult executeTask(std::string payload) override;
-    void executeTask(std::string task, std::string payload, payload_type pt, std::function<void(payload_type, void*, bool)> callback) override;
+    EchoModule(std::function<void(PayloadType, void*, void*)> &callback, void* data);
+    void executeTask(std::string task, std::string payload, PayloadType pt, std::function<void(PayloadType, void*, bool)> callback) override;
 };
 
 
-#endif //BASIC_MODULE_ECHOMODULE_H
+#endif //ECHO_MODULE_BOT_SIDE

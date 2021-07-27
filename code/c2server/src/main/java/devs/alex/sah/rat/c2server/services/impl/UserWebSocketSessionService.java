@@ -17,8 +17,8 @@ public class UserWebSocketSessionService implements WebSocketSessionService {
 
     @Override
     public void addSession(WebSocketSession session) {
-        session.setTextMessageSizeLimit(524288);
-        session.setBinaryMessageSizeLimit(524288);
+        session.setTextMessageSizeLimit(131072);
+        session.setBinaryMessageSizeLimit(131072);
         activeUsersSessions.put((String)session.getAttributes().get("userId"), session);
         log.debug("Added new session {}", session);
     }
