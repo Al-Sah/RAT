@@ -7,10 +7,10 @@ macro(get_abstract_module RELATIVE_PATH)
 endmacro()
 
 
-if(BOT_ENABLE)
+if(BUILD_BOT_MODULES)
     add_subdirectory("bot-side")
 endif()
 
-if(CONTROL_ENABLE)
+if(BUILD_CONTROL_MODULES)
     add_subdirectory("control-side")
 endif()
