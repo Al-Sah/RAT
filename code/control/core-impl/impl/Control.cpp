@@ -13,8 +13,7 @@ Control::Control(QWidget *parent) {
     this->moduleId = "RatControlSide";
     this->version = "1.0.0";
 
-    this->context = std::make_shared<ApplicationContext>
-            ("ControlApplicationContext", "1.0.0");
+    this->context = std::make_shared<ApplicationContext> ("ControlApplicationContext", "1.0.1", parent);
     this->modulesManager = std::make_shared<ModulesManager>
             ("ControlModulesManager", "1.0.0", context->getModulesManagerProperties(), parent);
     this->tasksManager = std::make_shared<TaskManager>

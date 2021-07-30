@@ -69,13 +69,13 @@ void MainWindow::updateConnectionMetainfoUI(wsr::ConnectionMetainfo connectionMe
     ui->label_ler_val->setText(this->connectionMetainfo.lastErrorReason);
     ui->label_status_details_val->setText(this->connectionMetainfo.status_details);
 
-    if(this->connectionMetainfo.status != "Connected"){
+/*    if(this->connectionMetainfo.status != "Connected"){
         ui->tabWidget->setCurrentIndex(0);
         QMessageBox messageBox;
         messageBox.warning(this, this->connectionMetainfo.status, this->connectionMetainfo.status_details);
         messageBox.setFixedSize(500,200);
         messageBox.show();
-    }
+    }*/
 
 }
 

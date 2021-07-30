@@ -7,11 +7,20 @@
 
 
 #include <AppContext/AbstractApplicationContext.h>
+#include "DataTransfer.h"
 
 class ApplicationContext: public AbstractApplicationContext{
 
+private:
+    volatile bool run;
+    std::thread notificator;
+    DataTransfer* dataTransfer;
+    void send_data();
+
 public:
-    ApplicationContext(std::string moduleId, std::string version);
+    ApplicationContext(std::string moduleId, std::string version, QWidget *parent);
+
+    virtual ~ApplicationContext();
 };
 
 

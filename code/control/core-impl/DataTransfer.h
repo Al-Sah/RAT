@@ -6,7 +6,9 @@
 #define CORE_DATATRANSFER_H
 
 #include <QWidget>
-#include "ApplicationContext.h"
+#include <TaskManaging/TaskManagerResources.h>
+#include <ModulesManager/ModulesManagerResources.h>
+#include <WebSocket/WebSocketResources.h>
 
 
 class DataTransfer : public QWidget{
@@ -15,10 +17,10 @@ private:
     QWidget* target;
 
     signals:
-    void wsRunnerPropertiesUpdated(wsr::WebSocketRunnerProperties ws_runner_properties);
+    void wsRunnerPropertiesUpdated(wsr::WebSocketRunnerProperties webSocketRunnerProperties);
     void connectionMetainfoUpdated(wsr::ConnectionMetainfo connectionMetainfo);
-    void commandsManagerPropertiesUpdated(cm::CommandsManagerProperties commands_manager_properties);
-    void modulesManagerPropertiesUpdated(mm::ModulesManagerProperties modules_manager_properties);
+    void commandsManagerPropertiesUpdated(cm::CommandsManagerProperties commandsManagerProperties);
+    void modulesManagerPropertiesUpdated(mm::ModulesManagerProperties modulesManagerProperties);
 
 public:
     explicit DataTransfer(QWidget* target);
