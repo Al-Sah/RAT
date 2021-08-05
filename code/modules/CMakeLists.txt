@@ -12,6 +12,7 @@ if(BUILD_BOT_MODULES)
 elseif(BUILD_CONTROL_MODULES)
     set(ROLE control-side)
     add_subdirectory(server-interaction/${ROLE})
+    add_subdirectory(bot-core-controller/${ROLE})
 endif()
 
 
