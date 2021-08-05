@@ -5,7 +5,7 @@
 #ifndef ECHO_MODULE_BOT_SIDE
 #define ECHO_MODULE_BOT_SIDE
 
-#include "../../TaskExecutor.h"
+#include "TaskExecutor.h"
 
 class EchoModule : public TaskExecutor {
 

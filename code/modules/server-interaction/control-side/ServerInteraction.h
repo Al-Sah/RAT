@@ -5,7 +5,7 @@
 #ifndef SERVER_INTERACTION_SERVERINTERACTION_H
 #define SERVER_INTERACTION_SERVERINTERACTION_H
 
-#include "../../UIModule.h"
+#include "UIModule.h"
 #include "serverinteractiongroupbox.h"
 #include "recourses.h"
 #include <QObject>

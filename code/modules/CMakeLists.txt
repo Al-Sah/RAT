@@ -8,9 +8,14 @@ endmacro()
 
 
 if(BUILD_BOT_MODULES)
-    add_subdirectory("bot-side")
+    set(ROLE bot-side)
+elseif(BUILD_CONTROL_MODULES)
+    set(ROLE control-side)
+    add_subdirectory(server-interaction/${ROLE})
 endif()
 
-if(BUILD_CONTROL_MODULES)
-    add_subdirectory("control-side")
+
+if(BUILD_BOT_MODULES OR BUILD_CONTROL_MODULES)
+    add_subdirectory(echo/${ROLE})
+    add_subdirectory(picturesTaker/${ROLE})
 endif()

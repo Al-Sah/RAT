@@ -1,7 +1,7 @@
 #ifndef PicturesTaker_H
 #define PicturesTaker_H
 
-#include "../../UIModule.h"
+#include "UIModule.h"
 #include <QObject>
 
 

@@ -6,7 +6,7 @@
 #define BASIC_MODULE_PICTURES_TAKER_H
 
 
-#include "../../TaskExecutor.h"
+#include "TaskExecutor.h"
 
 
 class PicturesTaker : public TaskExecutor{

@@ -3,7 +3,7 @@ project(picturesTaker)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_compile_definitions(MODULE_CLASS=PicturesTaker MODULE_FOLDER=bot-side/picturesTaker)
+add_compile_definitions(MODULE_CLASS=PicturesTaker MODULE_FOLDER=picturesTaker/bot-side)
 
 add_library(picturesTaker SHARED PicturesTaker.cpp ../../Module.cpp)
 
